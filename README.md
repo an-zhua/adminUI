@@ -23,7 +23,6 @@ AdminUI
 
 AdminUI is a front-end management background integration solution. It based on [Vue.js](https://github.com/vuejs/vue) and use the UI Toolkit [iView](https://github.com/iview/iview).
 
-- [Document](https://lison16.github.io/iview-admin-doc/)
 
 ![image](https://file.iviewui.com/admin-dist/admin-preview.png)
 
