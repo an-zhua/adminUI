@@ -15,10 +15,6 @@ AdminUI
 [![iview ui](https://img.shields.io/badge/iview-3.2.2-brightgreen.svg?style=flat-square)](https://github.com/iview/iview)
 [![npm](https://img.shields.io/npm/l/express.svg)]()
 
-<h2 align="center">Special Sponsors</h2>
-
-> If you'd like be a sponsor, to show your ads in GitHub and iView doc, please email admin@aresn.com to get more infomation.
-
 ## Introduction
 
 AdminUI is a front-end management background integration solution. It based on [Vue.js](https://github.com/vuejs/vue) and use the UI Toolkit [iView](https://github.com/iview/iview).
