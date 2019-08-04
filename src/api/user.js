@@ -2,14 +2,14 @@ import axios from '@/libs/api.request'
 
 export const getUserInfo = () => {
   return axios.request({
-    url: '/admin/sysUser/info',
+    url: '/admin/baseUser/info',
     method: 'get'
   })
 }
 
 export const getUserTableData = param => {
   return axios.request({
-    url: '/admin/sysUser/page',
+    url: '/admin/baseUser/page',
     params: param,
     method: 'get'
   })

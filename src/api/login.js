@@ -13,7 +13,7 @@ export const login = ({ username, password }) => {
     url: '/auth/oauth/token',
     headers: {
       isToken: false,
-      'Authorization': 'Basic bG95YWw6bG95YWw='
+      'Authorization': 'Basic bWFwbGU6bWFwbGU='
     },
     params: data,
     method: 'post'

@@ -1,6 +1,6 @@
 const path = require('path')
 const auth_url = 'http://localhost:3000'
-const admin_url = 'http://localhost:8888'
+const admin_url = 'http://localhost:8001'
 const resolve = dir => {
   return path.join(__dirname, dir)
 }
