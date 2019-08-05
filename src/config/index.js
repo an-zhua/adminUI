@@ -2,11 +2,11 @@ export default {
   /**
    * @description 配置主键,目前用于存储
    */
-  key: 'loyal',
+  key: 'adminUI',
   /**
    * @description 配置显示在浏览器标签的title
    */
-  title: 'loyal-admin',
+  title: 'adminUI',
   /**
    * @description token在Cookie中存储的天数，默认1天
    */
