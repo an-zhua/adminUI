@@ -2,14 +2,14 @@ import axios from '@/libs/api.request'
 
 export const getDeptList = () => {
   return axios.request({
-    url: '/admin/sysDept/getDeptList',
+    url: '/user/sysDept/getDeptList',
     method: 'get'
   })
 }
 
 export const getDeptTableData = param => {
   return axios.request({
-    url: '/admin/sysDept/page',
+    url: '/user/sysDept/page',
     params: param,
     method: 'get'
   })
@@ -17,7 +17,7 @@ export const getDeptTableData = param => {
 
 export const getRoleTableData = param => {
   return axios.request({
-    url: '/admin/sysRole/page',
+    url: '/user/baseRole/page',
     params: param,
     method: 'get'
   })
@@ -25,14 +25,14 @@ export const getRoleTableData = param => {
 
 export const getRoleList = () => {
   return axios.request({
-    url: '/admin/sysRole/getRoleList',
+    url: '/user/baseRole/getRoleList',
     method: 'get'
   })
 }
 
 export const addRole = param => {
   return axios.request({
-    url: '/admin/sysRole/add',
+    url: '/user/baseRole/add',
     params: param,
     method: 'post'
   })
@@ -40,7 +40,7 @@ export const addRole = param => {
 
 export const updateRole = param => {
   return axios.request({
-    url: '/admin/sysRole/update',
+    url: '/user/baseRole/update',
     params: param,
     method: 'post'
   })
@@ -48,14 +48,14 @@ export const updateRole = param => {
 
 export const deleteRole = id => {
   return axios.request({
-    url: '/admin/sysRole/delete/' + id,
+    url: '/user/baseRole/delete/' + id,
     method: 'delete'
   })
 }
 
 export const updateRoleAuth = param => {
   return axios.request({
-    url: '/admin/sysRole/updateRoleAuth',
+    url: '/user/baseRole/updateRoleAuth',
     params: param,
     method: 'post'
   })
@@ -63,7 +63,7 @@ export const updateRoleAuth = param => {
 
 export const getPermissionTree = param => {
   return axios.request({
-    url: '/admin/sysPermission/getTree',
+    url: '/user/baseResources/getTree',
     params: param,
     method: 'get'
   })
@@ -71,7 +71,7 @@ export const getPermissionTree = param => {
 
 export const getAuthTree = param => {
   return axios.request({
-    url: '/admin/sysPermission/getAuthTree',
+    url: '/user/baseResources/getAuthTree',
     params: param,
     method: 'get'
   })
@@ -79,7 +79,7 @@ export const getAuthTree = param => {
 
 export const addPermission = param => {
   return axios.request({
-    url: '/admin/sysPermission/add',
+    url: '/user/baseResources/add',
     params: param,
     method: 'post'
   })
@@ -87,7 +87,7 @@ export const addPermission = param => {
 
 export const updatePermission = param => {
   return axios.request({
-    url: '/admin/sysPermission/update',
+    url: '/user/baseResources/update',
     params: param,
     method: 'post'
   })

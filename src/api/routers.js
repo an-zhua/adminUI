@@ -12,7 +12,7 @@ export const getRouterReq = (access) => {
 
 export const getUserMenu = (access) => {
   return axios.request({
-    url: '/admin/sysPermission',
+    url: '/user/baseResources/getUserMenu',
     method: 'get'
   })
 }

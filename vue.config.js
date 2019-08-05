@@ -48,11 +48,11 @@ module.exports = {
           '^/auth': ''
         }
       },
-      '/admin': {
+      '/user': {
         target: admin_url,
         ws: true,
         pathRewrite: {
-          '^/admin': ''
+          '^/user': ''
         }
       }
     }
