@@ -1,6 +1,7 @@
 const path = require('path')
 const auth_url = 'http://localhost:5001/auth'
 const admin_url = 'http://localhost:5001/user'
+const manage_url = 'http://localhost:5001/manage'
 const resolve = dir => {
   return path.join(__dirname, dir)
 }
@@ -53,6 +54,13 @@ module.exports = {
         ws: true,
         pathRewrite: {
           '^/user': ''
+        }
+      },
+      '/manage': {
+        target: manage_url,
+        ws: true,
+        pathRewrite: {
+          '^/manage': ''
         }
       }
     }
