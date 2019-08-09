@@ -61,9 +61,9 @@ export const updateRoleAuth = param => {
   })
 }
 
-export const getPermissionTree = param => {
+export const getMenuTree = param => {
   return axios.request({
-    url: '/user/baseResources/getTree',
+    url: '/user/baseResources/getMenuTree',
     params: param,
     method: 'get'
   })
@@ -77,17 +77,17 @@ export const getAuthTree = param => {
   })
 }
 
-export const addPermission = param => {
+export const addMenu = param => {
   return axios.request({
-    url: '/user/baseResources/add',
+    url: '/user/baseResources/addMenu',
     params: param,
     method: 'post'
   })
 }
 
-export const updatePermission = param => {
+export const updateMenu = param => {
   return axios.request({
-    url: '/user/baseResources/update',
+    url: '/user/baseResources/updateMenu',
     params: param,
     method: 'post'
   })

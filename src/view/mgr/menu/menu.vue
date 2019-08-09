@@ -3,82 +3,41 @@
     <Card>
       <Row>
         <Col span="6">
-          <Button v-if="sys_permission_add" type="info" @click="handleAdd">新增</Button>&nbsp;
+          <Button v-if="res_add" type="info" @click="handleAdd">新增</Button>&nbsp;
+          <Button v-if="res_del" type="info" @click="handleDel">删除</Button>&nbsp;
           <Button type="info" @click="getData">刷新</Button>
-          <Tree ref="tree" :data="permissionTree" @on-select-change="selectTree" :render="renderContent"></Tree>
+          <Tree ref="tree" :data="resourceTree" @on-select-change="selectTree"></Tree>
         </Col>
         <Col span="12">
           <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
-            <FormItem label="父级节点" prop="parentId">
-              <Input v-model="formValidate.parentId" disabled></Input>
+            <FormItem label="标题" prop="resName">
+              <Input v-model="formValidate.resName" placeholder="请输入标题"></Input>
             </FormItem>
-            <FormItem label="节点ID" prop="id">
-              <Input v-model="formValidate.id" disabled></Input>
+            <FormItem label="序号" prop="sortNum">
+              <InputNumber v-model="formValidate.sortNum" :min="1"></InputNumber>
             </FormItem>
-            <FormItem label="名字" prop="name">
-              <Input v-model="formValidate.name" placeholder="Enter your name"></Input>
-            </FormItem>
-            <FormItem label="标题" prop="title">
-              <Input v-model="formValidate.title" placeholder="Enter your title"></Input>
-            </FormItem>
-            <FormItem label="序号" prop="sort">
-              <InputNumber v-model="formValidate.sort" :min="1"></InputNumber>
-            </FormItem>
-            <FormItem label="是否删除" prop="delFlag">
-              <Select v-model="formValidate.delFlag" placeholder="Select your delFlag">
-                <Option value="0">否</Option>
-                <Option value="1">是</Option>
+            <FormItem label="类型" prop="resType">
+              <Select v-model="formValidate.resType" placeholder="请选择类型">
+                <Option value="1">菜单</Option>
+                <Option value="2">按钮</Option>
               </Select>
             </FormItem>
-            <FormItem label="类型" prop="type">
-              <Select v-model="formValidate.type" placeholder="Select your type">
-                <Option value="0">菜单</Option>
-                <Option value="1">按钮</Option>
-              </Select>
+            <FormItem v-if="formValidate.resType === '2'" :key="'resCode'" label="权限标识" prop="resCode">
+              <Input v-model="formValidate.resCode" placeholder="请输入权限标识"></Input>
             </FormItem>
-            <FormItem v-if="formValidate.type === '1'" :key="'permission'" label="权限标识" prop="permission">
-              <Input v-model="formValidate.permission" placeholder="Enter your permission"></Input>
-            </FormItem>
-            <FormItem v-if="formValidate.type === '0'" label="图标" prop="icon">
+            <FormItem v-if="formValidate.resType === '1'" label="图标" prop="icon">
               <Input v-model="formValidate.icon" placeholder="Enter your icon"></Input>
             </FormItem>
-            <FormItem v-if="formValidate.type === '0'" :key="'component'" label="前端组件" prop="component">
-              <Input v-model="formValidate.component" placeholder="Enter your component"></Input>
+            <FormItem v-if="formValidate.resType === '1'" :key="'component'" label="前端组件" prop="component">
+              <Input v-model="formValidate.component" placeholder="请输入前端组件地址"></Input>
             </FormItem>
-            <FormItem v-if="formValidate.type === '0'" :key="'href'" label="前端地址" prop="href">
-              <Input v-model="formValidate.href" placeholder="Enter your href"></Input>
+            <FormItem v-if="formValidate.resType === '1'" :key="'resUrl'" label="前端地址" prop="resUrl">
+              <Input v-model="formValidate.resUrl" placeholder="请输入外部地址"></Input>
               <span style="color:green">用于跳转到外部连接</span>
             </FormItem>
-            <FormItem v-if="formValidate.type === '0'" :key="'hideInMenu'" label="菜单隐藏" prop="hideInMenu">
-              <Select v-model="formValidate.hideInMenu" clearable placeholder="Select your hideInMenu">
-                <Option value="1">是</Option>
-                <Option value="0">否</Option>
-              </Select>
-              <span style="color:green">设为true后在左侧菜单不会显示该页面选项</span>
-            </FormItem>
-            <FormItem v-if="formValidate.type === '0'" :key="'showAlways'" label="总是显示" prop="showAlways">
-              <Select v-model="formValidate.showAlways" clearable placeholder="Select your showAlways">
-                <Option value="1">是</Option>
-                <Option value="0">否</Option>
-              </Select>
-              <span style="color:green">设为true后如果该路由只有一个子路由，在菜单中也会显示该父级菜单</span>
-            </FormItem>
-            <FormItem v-if="formValidate.type === '0'" :key="'notCache'" label="是否缓存" prop="notCache">
-              <Select v-model="formValidate.notCache" clearable placeholder="Select your notCache">
-                <Option value="0">缓存</Option>
-                <Option value="1">不缓存</Option>
-              </Select>
-              <span style="color:green">设为true后页面不会缓存</span>
-            </FormItem>
-            <FormItem v-if="formValidate.type === '0'" :key="'access'" label="访问权限" prop="access">
-              <Select v-model="formValidate.access" clearable multiple placeholder="Select your access">
-                <Option v-for="item in roleList" :value="item.roleCode" :key="item.roleCode">{{ item.name }}</Option>
-              </Select>
-              <span style="color:green">可访问该页面的权限数组，当前路由设置的权限会影响子路由</span>
-            </FormItem>
             <FormItem>
-              <Button v-if="sys_permission_edit" type="primary" @click="handleSubmit('formValidate')">Submit</Button>
-              <Button @click="handleReset('formValidate')" style="margin-left: 8px">Reset</Button>
+              <Button v-if="res_edit" type="primary" @click="handleSubmit('formValidate')">提交</Button>
+              <Button @click="handleReset('formValidate')" style="margin-left: 8px">重置</Button>
             </FormItem>
           </Form>
         </Col>
@@ -88,185 +47,108 @@
 </template>
 
 <script>
-import { getPermissionTree, getRoleList, addPermission, updatePermission } from "@/api/data"
+import { getMenuTree, getRoleList, addMenu, updateMenu } from '@/api/data'
 import { mapGetters } from 'vuex'
 export default {
-  name: "permission",
-  data() {
+  name: 'menu',
+  data () {
     return {
-      permissionTree: [],
+      resourceTree: [],
       roleList: [],
-      sys_permission_add: false,
-      sys_permission_edit: false,
-			sys_permission_del: false,
+      res_add: false,
+      res_edit: false,
+      res_del: false,
       formValidate: {
         parentId: -1,
         id: null,
-        name: null,
-        title: null,
-        sort: 1,
-        delFlag: '0',
-        permission: null,
+        resName: null,
+        sortNum: 1,
+        resCode: null,
         icon: null,
         component: null,
-        type: '0',
-        href: null,
-        hideInMenu: '0',
-        showAlways: '0',
-        notCache: '0',
-        access: null
+        resType: '1',
+        resUrl: null
       },
       currentId: -1,
       ruleValidate: {
-        name: [
-          { required: true, message: "The name cannot be empty", trigger: "blur" }
+        resName: [
+          { required: true, message: '标题不能为空', trigger: 'blur' }
         ],
-        title: [
-          { required: true, message: "The title cannot be empty", trigger: "blur" }
+        resType: [
+          { required: true, message: '类型不能为空', trigger: 'change' }
         ],
-        type: [
-          { required: true, message: "Please select type", trigger: "change" }
+        sortNum: [
+          { type: 'number', required: true, message: '序号不能为空', trigger: 'blur' }
         ],
-        sort: [
-          { type: 'number', required: true, message: 'The sort cannot be empty', trigger: 'blur' }
-        ],
-        permission: [
-          { required: true, message: "The permission cannot be empty", trigger: "blur" }
+        resCode: [
+          { required: true, message: '权限标识不能为空', trigger: 'blur' }
         ],
         component: [
-          { required: true, message: "The component cannot be empty", trigger: "blur" }
+          { required: true, message: '前端组件地址不能为空', trigger: 'blur' }
         ]
       }
-    };
+    }
   },
   computed: {
     ...mapGetters(['permissions'])
   },
   methods: {
-    getRoleList() {
-      getRoleList().then(res => {
-        this.roleList = res.data.data
-      });
+    getData () {
+      getMenuTree().then(res => {
+        this.resourceTree = res.data.data
+      })
     },
-    getData() {
-      getPermissionTree().then(res => {
-        this.permissionTree = res.data.data
-      });
-    },
-    selectTree: function(data, node) {
+    selectTree: function (data, node) {
       this.formValidate.parentId = node.parentId
       this.formValidate.id = node.id
-      this.formValidate.name = node.name
-      this.formValidate.title = node.title
-      this.formValidate.sort = node.sort
-      this.formValidate.delFlag = node.delFlag
-      this.formValidate.permission = node.permission
+      this.formValidate.resName = node.title
+      this.formValidate.sortNum = node.sort
+      this.formValidate.resCode = node.resCode
       this.formValidate.icon = node.icon
       this.formValidate.component = node.component
-      this.formValidate.type = node.type
-      this.formValidate.href = node.href
-      if( node.hideInMenu ) {
-        this.formValidate.hideInMenu = '1'
-      } else {
-        this.formValidate.hideInMenu = '0'
-      }
-      if( node.showAlways ) {
-        this.formValidate.showAlways = '1'
-      } else {
-        this.formValidate.showAlways = '0'
-      }
-      if( node.notCache ) {
-        this.formValidate.notCache = '1'
-      } else {
-        this.formValidate.notCache = '0'
-      }
-      if(node.access && node.access.length > 0) {
-        this.formValidate.access = node.access.split(',')
-      } else {
-        this.formValidate.access = null
-      }
+      this.formValidate.resType = node.type
+      this.formValidate.resUrl = node.href
       this.currentId = node.id
     },
-    handleAdd: function() {
+    handleAdd: function () {
       this.$refs['formValidate'].resetFields()
       this.formValidate.parentId = this.currentId
     },
-    handleSubmit(name) {
+    handleDel: function () {
+
+    },
+    handleSubmit (name) {
       this.$refs[name].validate(valid => {
         if (valid) {
           let data = Object.assign({}, this.formValidate)
-          if( this.formValidate.access && this.formValidate.access.length > 0 ) {
-            data.access = JSON.stringify( this.formValidate.access )
-          }
-          if( this.formValidate.parentId === this.currentId ) {// 新增
-            addPermission(data).then(res => {
+          if (this.formValidate.parentId === this.currentId) { // 新增
+            addMenu(data).then(res => {
               this.$Message.success(res.data.msg)
               this.getData()
             })
           } else {
-            updatePermission(data).then(res => {
+            updateMenu(data).then(res => {
               this.$Message.success(res.data.msg)
               this.getData()
             })
           }
         } else {
-          this.$Message.error("毕填项不能为空!")
+          this.$Message.error('毕填项不能为空!')
         }
-      });
+      })
     },
-    handleReset(name) {
+    handleReset (name) {
       this.$refs[name].resetFields()
       this.currentId = -1
-    },
-    renderContent(h, { root, node, data }) {
-      if ( data.delFlag === '1' ) {
-        let title = data.title + ' (已删除)'
-        return h( "span", {
-            style: {
-              display: "inline-block",
-              cursor: "pointer",
-              color: node.node.selected ? "#2d8cf0" : "red" //根据选中状态设置样式
-            },
-            on: {
-              click: () => {
-                if (!node.node.selected) {
-                  this.$refs.tree.handleSelect(node.nodeKey); //手动选择树节点
-                } else {
-                  node.node.selected = false
-                  this.handleReset('formValidate')
-                }
-              }
-            }
-          },title)
-      } else {
-        return h( "span", {
-            style: {
-              display: "inline-block",
-              cursor: "pointer",
-              color: node.node.selected ? "#2d8cf0" : "#515a6e" //根据选中状态设置样式
-            },
-            on: {
-              click: () => {
-                if (!node.node.selected) {
-                  this.$refs.tree.handleSelect(node.nodeKey); //手动选择树节点
-                } else {
-                  node.node.selected = false
-                  this.handleReset('formValidate')
-                }
-              }
-            }
-          },data.title)
-      }
     }
   },
-  created() {
-    this.getRoleList()
-    this.sys_permission_add = this.permissions && this.permissions.includes('sys_permission_add')
-    this.sys_permission_edit = this.permissions && this.permissions.includes('sys_permission_edit')
-    this.sys_permission_del = this.permissions && this.permissions.includes('sys_permission_del')
+  created () {
+    this.res_add = this.permissions && this.permissions.includes('res_add')
+    this.res_edit = this.permissions && this.permissions.includes('res_edit')
+    this.res_del = this.permissions && this.permissions.includes('res_del')
     this.getData()
   }
-};
+}
 </script>
 
 <style scoped>
