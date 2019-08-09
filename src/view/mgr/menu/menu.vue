@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { getMenuTree, getRoleList, addMenu, updateMenu } from '@/api/data'
+import { getMenuTree, addMenu, updateMenu } from '@/api/data'
 import { mapGetters } from 'vuex'
 export default {
   name: 'menu',
