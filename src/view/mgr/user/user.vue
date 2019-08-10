@@ -2,8 +2,8 @@
   <div>
     <Card>
       <Form ref="searchMap" :model="searchMap" inline :label-width="100">
-        <FormItem label="用户名" prop="username">
-          <Input clearable placeholder="输入用户名搜索" v-model="searchMap.username"/>
+        <FormItem label="用户名" prop="nickName">
+          <Input clearable placeholder="输入用户名搜索" v-model="searchMap.nickName"/>
         </FormItem>
         <FormItem label="创建日期">
           <Row>
@@ -29,9 +29,9 @@
       </Form>
       <div style="padding-bottom:10px">
         <ButtonGroup>
-          <Button v-if="sys_user_add" type="info" @click="add">新增</Button>
-          <Button v-if="sys_user_edit" type="success" @click="edit">修改</Button>
-          <Button v-if="sys_user_del" type="warning" @click="del">删除</Button>
+          <Button v-if="hasPermissions('user_add')" type="info" @click="add">新增</Button>
+          <Button v-if="hasPermissions('user_edit')" type="success" @click="edit">修改</Button>
+          <Button v-if="hasPermissions('user_del')" type="warning" @click="del">删除</Button>
         </ButtonGroup>
       </div>
       <Table
@@ -67,14 +67,14 @@
         @on-cancel="handleReset('formValidate')"
       >
         <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
-          <FormItem label="姓名" prop="name">
-            <Input v-model="formValidate.name" placeholder="Enter your name"></Input>
+          <FormItem label="姓名" prop="nickName">
+            <Input v-model="formValidate.nickName" placeholder="请输入姓名"></Input>
           </FormItem>
-          <FormItem label="用户名" prop="username">
-            <Input v-model="formValidate.username" placeholder="Enter your username"></Input>
+          <FormItem label="用户名" prop="userName">
+            <Input v-model="formValidate.userName" placeholder="请输入用户名"></Input>
           </FormItem>
           <FormItem label="邮箱" prop="mail">
-            <Input v-model="formValidate.mail" placeholder="Enter your e-mail"></Input>
+            <Input v-model="formValidate.mail" placeholder="请输入邮箱"></Input>
           </FormItem>
           <FormItem label="生日" prop="date">
             <Row>
@@ -88,11 +88,6 @@
               <Radio label="male">Male</Radio>
               <Radio label="female">Female</Radio>
             </RadioGroup>
-          </FormItem>
-          <FormItem label="部门" prop="deptId">
-            <Select v-model="formValidate.deptId" clearable style="width:200px">
-              <Option v-for="item in deptList" :value="item.id" :key="item.id">{{ item.name }}</Option>
-            </Select>
           </FormItem>
           <FormItem label="简介" prop="avatar">
             <Input
@@ -112,6 +107,7 @@ import Tables from '_c/tables'
 import { getUserTableData } from '@/api/user'
 import { getDeptList } from '@/api/data'
 import { mapGetters } from 'vuex'
+import hasPermissions from '@/libs/permission'
 export default {
   name: 'user',
   components: {
@@ -125,16 +121,17 @@ export default {
       columns: [
         { type: 'selection', width: 60, align: 'center' },
         { type: 'index', width: 60, align: 'center' },
-        { title: '姓名', key: 'name', sortable: true, width: 120 },
-        { title: '用户名', key: 'username', sortable: true, width: 120 },
+        { title: '姓名', key: 'nickName', sortable: true, width: 120 },
+        { title: '用户名', key: 'userName', sortable: true, width: 120 },
         { title: '手机号', key: 'phone', width: 120 },
-        { title: '邮箱', key: 'email', width: 150 },
-        { title: '部门', key: 'deptName', width: 100 },
-        { title: '微信_openid', key: 'wxOpenid', width: 250 },
-        { title: 'QQ_openid', key: 'qqOpenid', width: 250 },
-        { title: '锁定标志', key: 'lockFlag', width: 100,
+        { title: '邮箱', key: 'email', width: 180 },
+        { title: 'wxLink', key: 'wxLink' },
+        { title: 'qqLink', key: 'qqLink' },
+        { title: '锁定标志',
+          key: 'isLock',
+          width: 100,
           render: (h, params) => {
-            if (params.row.lockFlag == '1') {
+            if (params.row.isLock === '1') {
               return h('span', [
                 h('span', {
                   style: {
@@ -145,11 +142,13 @@ export default {
             } else {
               return h('span', '未锁定')
             }
-          } 
+          }
         },
-        { title: '删除标志', key: 'delFlag', width: 100,
+        { title: '删除标志',
+          key: 'isDelete',
+          width: 100,
           render: (h, params) => {
-            if (params.row.delFlag == '1') {
+            if (params.row.isDelete === '1') {
               return h('span', [
                 h('span', {
                   style: {
@@ -160,15 +159,12 @@ export default {
             } else {
               return h('span', '未删除')
             }
-          } 
+          }
         },
-        { title: '创建日期', key: 'createTime', width: 160 }
+        { title: '创建日期', key: 'createDate' }
       ],
       tableData: [],
       selectionData: [],
-      sys_user_add: false,
-      sys_user_edit: false,
-      sys_user_del: false,
       formModal: false,
       pageInfo: {
         total: 0,
@@ -176,74 +172,52 @@ export default {
         size: 10
       },
       searchMap: {
-        username: '',
+        userName: '',
         createTimeS: '',
         createTimeE: ''
       },
       title: '',
       deptList: [],
       formValidate: {
-        name: '',
-        username: '',
+        nickName: '',
+        userName: '',
         mail: '',
         gender: '',
-        deptId: '',
         date: '',
         avatar: ''
       },
       ruleValidate: {
-        name: [
+        nickName: [
           {
             required: true,
-            message: 'The name cannot be empty',
+            message: '姓名不能为空',
             trigger: 'blur'
           }
         ],
-        username: [
+        userName: [
           {
             required: true,
-            message: 'The username cannot be empty',
+            message: '用户名不能为空',
             trigger: 'blur'
           }
         ],
         mail: [
           {
             required: true,
-            message: 'Mailbox cannot be empty',
+            message: '邮箱不能为空',
             trigger: 'blur'
           },
-          { type: 'email', message: 'Incorrect email format', trigger: 'blur' }
+          { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
         ],
         gender: [
-          { required: true, message: 'Please select gender', trigger: 'change' }
-        ],
-        deptId: [
-          {
-            type: 'number',
-            required: true,
-            message: 'The dept cannot be empty',
-            trigger: 'change'
-          }
+          { required: true, message: '请选择性别', trigger: 'change' }
         ],
         date: [
           {
             required: true,
             type: 'date',
-            message: 'Please select the date',
+            message: '请选择出生日期',
             trigger: 'change'
-          }
-        ],
-        avatar: [
-          {
-            required: true,
-            message: 'Please enter a personal introduction',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 20,
-            message: 'Introduce no less than 20 words',
-            trigger: 'blur'
           }
         ]
       }
@@ -253,6 +227,7 @@ export default {
     ...mapGetters(['permissions'])
   },
   methods: {
+    hasPermissions,
     handleSelection (data) {
       this.selectionData = data
     },
@@ -286,7 +261,6 @@ export default {
     add () {
       this.title = '新增'
       this.formModal = true
-      this.getDeptList()
     },
     edit () {
       if (this.selectionData === false || this.selectionData.length !== 1) {
@@ -295,18 +269,10 @@ export default {
       }
       this.title = '修改'
       this.formModal = true
-      this.formValidate.name = this.selectionData[0].name
+      this.formValidate.nickName = this.selectionData[0].nickName
+      this.formValidate.userName = this.selectionData[0].userName
       this.formValidate.mail = this.selectionData[0].email
       this.formValidate.date = this.selectionData[0].createTime
-      this.formValidate.deptId = this.selectionData[0].deptId
-      this.getDeptList()
-    },
-    getDeptList () {
-      getDeptList().then(res => {
-        this.deptList = res.data.data
-      }).catch(err => {
-        
-      })
     },
     del () {
       if (this.selectionData === false || this.selectionData.length === 0) {
@@ -327,7 +293,7 @@ export default {
         if (valid) {
           this.$Message.success('Success!')
           this.formModal = false
-          this.handleReset (name)
+          this.handleReset(name)
         } else {
           this.handModelLoading(name)
         }
@@ -336,7 +302,7 @@ export default {
     handleReset (name) {
       this.$refs[name].resetFields()
     },
-    handModelLoading(name) {
+    handModelLoading (name) {
       setTimeout(() => {
         this.modalLoading = false
         this.$nextTick(() => {
@@ -346,9 +312,6 @@ export default {
     }
   },
   created () {
-    this.sys_user_add = this.permissions && this.permissions.includes('sys_user_add')
-    this.sys_user_edit = this.permissions && this.permissions.includes('sys_user_edit')
-    this.sys_user_del = this.permissions && this.permissions.includes('sys_user_del')
   },
   mounted () {
     this.getData()

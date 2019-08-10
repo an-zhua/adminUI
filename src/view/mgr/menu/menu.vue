@@ -3,8 +3,8 @@
     <Card>
       <Row>
         <Col span="6">
-          <Button v-if="res_add" type="info" @click="handleAdd">新增</Button>&nbsp;
-          <Button v-if="res_del" type="info" @click="handleDel">删除</Button>&nbsp;
+          <Button v-if="hasPermissions('res_add')" type="info" @click="handleAdd">新增</Button>&nbsp;
+          <Button v-if="hasPermissions('res_del')" type="info" @click="handleDel">删除</Button>&nbsp;
           <Button type="info" @click="getData">刷新</Button>
           <Tree ref="tree" :data="resourceTree" @on-select-change="selectTree"></Tree>
         </Col>
@@ -48,15 +48,13 @@
 <script>
 import { getMenuTree, addMenu, updateMenu } from '@/api/data'
 import { mapGetters } from 'vuex'
+import hasPermissions from '@/libs/permission'
 export default {
   name: 'menu',
   data () {
     return {
       resourceTree: [],
       roleList: [],
-      res_add: false,
-      res_edit: false,
-      res_del: false,
       formValidate: {
         parentId: -1,
         id: null,
@@ -82,10 +80,8 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters(['permissions'])
-  },
   methods: {
+    hasPermissions,
     getData () {
       getMenuTree().then(res => {
         this.resourceTree = res.data.data
@@ -136,9 +132,6 @@ export default {
     }
   },
   created () {
-    this.res_add = this.permissions && this.permissions.includes('res_add')
-    this.res_edit = this.permissions && this.permissions.includes('res_edit')
-    this.res_del = this.permissions && this.permissions.includes('res_del')
     this.getData()
   }
 }

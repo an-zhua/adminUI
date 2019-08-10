@@ -1,7 +1,5 @@
 const path = require('path')
-const auth_url = 'http://localhost:5001/auth'
-const admin_url = 'http://localhost:5001/user'
-const manage_url = 'http://localhost:5001/manage'
+const req_url = 'http://localhost:5001'
 const resolve = dir => {
   return path.join(__dirname, dir)
 }
@@ -43,24 +41,24 @@ module.exports = {
     port: 8088,
     proxy: {
       '/auth': {
-        target: auth_url,
+        target: req_url,
         ws: true,
         pathRewrite: {
-          '^/auth': ''
+          '^/auth': '/auth'
         }
       },
       '/user': {
-        target: admin_url,
+        target: req_url,
         ws: true,
         pathRewrite: {
-          '^/user': ''
+          '^/user': '/user'
         }
       },
       '/manage': {
-        target: manage_url,
+        target: req_url,
         ws: true,
         pathRewrite: {
-          '^/manage': ''
+          '^/manage': '/manage'
         }
       }
     }
