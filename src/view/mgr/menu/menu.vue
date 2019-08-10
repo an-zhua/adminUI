@@ -28,12 +28,11 @@
             <FormItem v-if="formValidate.resType === '1'" label="图标" prop="icon">
               <Input v-model="formValidate.icon" placeholder="Enter your icon"></Input>
             </FormItem>
+            <FormItem v-if="formValidate.resType === '1'" :key="'path'" label="前端路由" prop="path">
+              <Input v-model="formValidate.path" placeholder="请输入前端路由"></Input>
+            </FormItem>
             <FormItem v-if="formValidate.resType === '1'" :key="'component'" label="前端组件" prop="component">
               <Input v-model="formValidate.component" placeholder="请输入前端组件地址"></Input>
-            </FormItem>
-            <FormItem v-if="formValidate.resType === '1'" :key="'resUrl'" label="前端地址" prop="resUrl">
-              <Input v-model="formValidate.resUrl" placeholder="请输入外部地址"></Input>
-              <span style="color:green">用于跳转到外部连接</span>
             </FormItem>
             <FormItem>
               <Button v-if="res_edit" type="primary" @click="handleSubmit('formValidate')">提交</Button>
@@ -67,7 +66,7 @@ export default {
         icon: null,
         component: null,
         resType: '1',
-        resUrl: null
+        path: null
       },
       currentId: -1,
       ruleValidate: {
@@ -79,12 +78,6 @@ export default {
         ],
         sortNum: [
           { type: 'number', required: true, message: '序号不能为空', trigger: 'blur' }
-        ],
-        resCode: [
-          { required: true, message: '权限标识不能为空', trigger: 'blur' }
-        ],
-        component: [
-          { required: true, message: '前端组件地址不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -107,7 +100,7 @@ export default {
       this.formValidate.icon = node.icon
       this.formValidate.component = node.component
       this.formValidate.resType = node.type
-      this.formValidate.resUrl = node.href
+      this.formValidate.path = node.path
       this.currentId = node.id
     },
     handleAdd: function () {
