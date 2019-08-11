@@ -3,7 +3,6 @@
     <Card shadow title="社区">
       <row class="join-page" :gutter="32">
         <i-col span="10">
-          <img class="qq-group-img" src="../assets/images/icon-qr-qq-wechat.png">
           <row type="flex" justify="center">
             <i-col span="12">
               <p>QQ 群号：621780943</p>
