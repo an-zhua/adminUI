@@ -29,9 +29,9 @@
       </Form>
       <div style="padding-bottom:10px">
         <ButtonGroup>
-          <Button v-if="sys_role_add" type="info" @click="add">新增</Button>
-          <Button v-if="sys_role_edit" type="success" @click="edit">修改</Button>
-          <Button v-if="sys_role_del" type="warning" @click="del">删除</Button>
+          <Button v-if="hasPermissions('role_add')" type="info" @click="add">新增</Button>
+          <Button v-if="hasPermissions('role_edit')" type="success" @click="edit">修改</Button>
+          <Button v-if="hasPermissions('role_del')" type="warning" @click="del">删除</Button>
         </ButtonGroup>
       </div>
       <Table
@@ -44,7 +44,7 @@
         @on-selection-change="handleSelection"
       >
         <template slot-scope="{ row, index }" slot="handler">
-            <Button v-if="sys_role_perm" type="primary" size="small" style="margin-right: 5px" @click="auth(row, index)">授权</Button>
+            <Button v-if="hasPermissions('role_perm')" type="primary" size="small" style="margin-right: 5px" @click="auth(row, index)">授权</Button>
         </template>
       </Table>
       <div style="padding-top:10px; height:40px;">
@@ -123,11 +123,11 @@ export default {
       columns: [
         { type: 'selection', width: 60, align: 'center' },
         { type: 'index', width: 60, align: 'center' },
-        { title: '角色名称', key: 'name', sortable: true },
+        { title: '角色名称', key: 'roleName', sortable: true },
         { title: '角色代码', key: 'roleCode', sortable: true },
-        { title: '删除标志', key: 'delFlag', width: 100,
+        { title: '删除标志', key: 'isDelete', width: 100,
           render: (h, params) => {
-            if (params.row.delFlag == '1') {
+            if (params.row.isDelete == '1') {
               return h('span', [
                 h('span', {
                   style: {
@@ -140,16 +140,16 @@ export default {
             }
           } 
         },
-        { title: '创建日期', key: 'createTime' },
-        { title: '备注', key: 'roleDesc', width: 180},
+        { title: '创建日期', key: 'createDate' ,
+          render: (h, params) => {
+            return h("span",this.$dateFormateT(params.row.createDate,"yyyy-MM-dd hh:mm:ss"))
+          }
+        },
+        { title: '备注', key: 'remark', width: 180},
         { title: '操作', key: 'handler', slot: 'handler', width: 80 }
       ],
       tableData: [],
 			selectionData: [],
-      sys_role_add: false,
-      sys_role_edit: false,
-			sys_role_del: false,
-			sys_role_perm: false,
 			formModal: false,
 			authModal: false,
       pageInfo: {
@@ -196,6 +196,9 @@ export default {
     ...mapGetters(['permissions'])
   },
   methods: {
+    hasPermissions(data) {
+      return this.$hasPermissions(data)
+    },
     handleSelection (data) {
       this.selectionData = data
     },
@@ -340,10 +343,6 @@ export default {
     }
   },
   created () {
-    this.sys_role_add = this.permissions.includes('sys_role_add')
-    this.sys_role_edit = this.permissions.includes('sys_role_edit')
-		this.sys_role_del = this.permissions.includes('sys_role_del')
-		this.sys_role_perm = this.permissions.includes('sys_role_perm')
   },
   mounted () {
     this.getData()
