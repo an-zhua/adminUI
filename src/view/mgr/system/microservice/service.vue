@@ -14,9 +14,9 @@
       </Form>
       <div style="padding-bottom:10px">
         <ButtonGroup>
-          <Button v-if="sys_service_add" type="info" @click="add">新增</Button>
-          <Button v-if="sys_service_edit" type="success" @click="edit">修改</Button>
-          <Button v-if="sys_service_del" type="warning" @click="del">删除</Button>
+          <Button v-if="hasPermissions('service_add')" type="info" @click="add">新增</Button>
+          <Button v-if="hasPermissions('service_edit')" type="success" @click="edit">修改</Button>
+          <Button v-if="hasPermissions('service_del')" type="warning" @click="del">删除</Button>
         </ButtonGroup>
       </div>
       <Table
@@ -42,12 +42,70 @@
         </div>
       </div>
     </Card>
+
+    <div>
+      <Modal
+        v-model="formModal"
+        :title="title"
+        :loading="modalLoading"
+        :mask-closable="false"
+        @on-ok="handleSubmit('formValidate')"
+        @on-cancel="handleReset('formValidate')"
+      >
+        <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
+          <FormItem label="服务名称" prop="serviceName">
+            <Input v-model="formValidate.serviceName" placeholder="请输入服务名称"></Input>
+          </FormItem>
+          <FormItem label="部署服务器IP" prop="serviceIp">
+            <Input v-model="formValidate.serviceIp" placeholder="请输入部署机器ip"></Input>
+          </FormItem>
+          <FormItem label="服务端口号" prop="servicePort">
+            <Input v-model="formValidate.servicePort" placeholder="请输入端口号"></Input>
+          </FormItem>
+          <FormItem label="是否自动创建config" prop="isCreateConfig">
+            <RadioGroup v-model="formValidate.isCreateConfig">
+              <Radio label="1">是</Radio>
+              <Radio label="0">否</Radio>
+            </RadioGroup>
+          </FormItem>
+          <FormItem label="是否使用Mysql" prop="isUseMysql">
+            <RadioGroup v-model="formValidate.isUseMysql">
+              <Radio label="1">是</Radio>
+              <Radio label="0">否</Radio>
+            </RadioGroup>
+          </FormItem>
+          <FormItem label="是否使用Redis" prop="isUseRedis">
+            <RadioGroup v-model="formValidate.isUseRedis">
+              <Radio label="1">是</Radio>
+              <Radio label="0">否</Radio>
+            </RadioGroup>
+          </FormItem>
+          <FormItem label="是否使用RabbitMQ" prop="isUseRabbitmq">
+            <RadioGroup v-model="formValidate.isUseRabbitmq">
+              <Radio label="1">是</Radio>
+              <Radio label="0">否</Radio>
+            </RadioGroup>
+          </FormItem>
+          <FormItem label="备注" prop="remark">
+            <Input
+              v-model="formValidate.remark"
+              type="textarea"
+              :autosize="{minRows: 2,maxRows: 5}"
+              placeholder="请输入备注信息"
+            ></Input>
+          </FormItem>
+        </Form>
+      </Modal>
+    </div>
+
   </div>
 </template>
 <script>
 import Tables from '_c/tables'
 import { getServiceTableData } from '@/api/system/data'
 import { mapMutations, mapState } from 'vuex'
+import hasPermissions from '@/libs/permission'
+import {formatDate, baseIs} from '@/api/base'
 export default {
   name: 'service',
   components: {
@@ -68,9 +126,7 @@ export default {
           key: 'isStart',
           width: 160,
           render: (h, params) => {
-            this.$store.commit('baseIs', { h, params: params.row.isStart })
-            let result = this.manage.baseIsResult
-            return result
+            return baseIs(h, params.row.isStart)
           }
         },
         {
@@ -78,9 +134,7 @@ export default {
           key: 'isCreateConfig',
           width: 160,
           render: (h, params) => {
-            this.$store.commit('baseIs', { h, params: params.row.isCreateConfig })
-            let result = this.manage.baseIsResult
-            return result
+            return baseIs(h, params.row.isCreateConfig)
           }
         },
         {
@@ -88,9 +142,7 @@ export default {
           key: 'isUseMysql',
           width: 160,
           render: (h, params) => {
-            this.$store.commit('baseIs', { h, params: params.row.isUseMysql })
-            let result = this.manage.baseIsResult
-            return result
+            return baseIs(h, params.row.isUseMysql)
           }
         },
         {
@@ -98,9 +150,7 @@ export default {
           key: 'isUseRedis',
           width: 160,
           render: (h, params) => {
-            this.$store.commit('baseIs', { h, params: params.row.isUseRedis })
-            let result = this.manage.baseIsResult
-            return result
+            return baseIs(h, params.row.isUseRedis)
           }
         },
         {
@@ -108,9 +158,7 @@ export default {
           key: 'isUseRabbitmq',
           width: 160,
           render: (h, params) => {
-            this.$store.commit('baseIs', { h, params: params.row.isUseRabbitmq })
-            let result = this.manage.baseIsResult
-            return result
+            return baseIs(h, params.row.isUseRabbitmq)
           }
         },
         {
@@ -118,9 +166,7 @@ export default {
           key: 'status',
           width: 160,
           render: (h, params) => {
-            this.$store.commit('baseIs', { h, params: params.row.status })
-            let result = this.manage.baseIsResult
-            return result
+            return baseIs(h, params.row.status)
           }
         },
         {
@@ -128,18 +174,12 @@ export default {
           key: 'createDate',
           width: 160,
           render: (h, params) => {
-            this.$store.commit('formatDate', { date: params.row.createDate, fmt: 'yyyy-MM-dd hh:mm:ss' })
-            let time = this.manage.dateResult
-            return h('span', time)
-            // return this.formatDate(params.row.createDate, 'yyyy-MM-dd hh:mm:ss');
+            return h('span', formatDate(params.row.createDate, 'yyyy-MM-dd hh:mm:ss'));
           }
         }
       ],
       tableData: [],
       selectionData: [],
-      sys_service_add: false,
-      sys_service_edit: false,
-      sys_service_del: false,
       formModal: false,
       pageInfo: {
         total: 0,
@@ -150,15 +190,31 @@ export default {
         serviceName: ''
       },
       title: '',
-      deptList: [],
       formValidate: {
-        name: '',
-        username: '',
-        mail: '',
-        gender: '',
-        deptId: '',
-        date: '',
-        avatar: ''
+        serviceName: '',
+        serviceIp: '',
+        servicePort: '',
+        isCreateConfig: '0',
+        isUseMysql: '0',
+        isUseRedis: '0',
+        isUseRabbitmq: '0',
+        remark: ''
+      },
+      ruleValidate: {
+        serviceName: [
+          {
+            required: true,
+            message: '服务名称为空',
+            trigger: 'blur'
+          }
+        ],
+        servicePort: [
+          {
+            required: true,
+            message: '服务端口号不能为空',
+            trigger: 'blur'
+          }
+        ]
       }
     }
   },
@@ -172,7 +228,7 @@ export default {
     ])
   },
   methods: {
-
+    hasPermissions,
     handleSelection (data) {
       this.selectionData = data
     },
@@ -197,7 +253,39 @@ export default {
           this.tableData = res.data.data.records
           this.pageInfo.total = res.data.data.total
           this.tableLoading = false
-        })
+        }).catch(err => {
+        this.tableLoading = false
+      })
+    },
+    add () {
+      this.title = '新增'
+      this.formModal = true
+    },
+    edit () {
+      if (this.selectionData === false || this.selectionData.length !== 1) {
+        this.$Message.warning('请选择一条数据')
+        return
+      }
+      this.title = '修改'
+      this.formModal = true
+      this.formValidate.nickName = this.selectionData[0].nickName
+      this.formValidate.userName = this.selectionData[0].userName
+      this.formValidate.mail = this.selectionData[0].email
+      this.formValidate.date = this.selectionData[0].createTime
+    },
+    del () {
+      if (this.selectionData === false || this.selectionData.length === 0) {
+        this.$Message.warning('请至少选择一条数据')
+        return
+      }
+      this.$Modal.confirm({
+        title: '提示',
+        content: '此操作将永久删除, 是否继续?',
+        onOk: () => {
+          // 删除
+          this.getData()
+        }
+      })
     },
     handleSubmit (name) {
       this.$refs[name].validate(valid => {
