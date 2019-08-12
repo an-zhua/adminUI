@@ -48,7 +48,6 @@
 <script>
 import { getMenuTree, addMenu, updateMenu } from '@/api/data'
 import { mapGetters } from 'vuex'
-import hasPermissions from '@/libs/permission'
 export default {
   name: 'menu',
   data () {
@@ -81,7 +80,9 @@ export default {
     }
   },
   methods: {
-    hasPermissions,
+    hasPermissions(data) {
+      return this.$hasPermissions(data)
+    },
     getData () {
       getMenuTree().then(res => {
         this.resourceTree = res.data.data

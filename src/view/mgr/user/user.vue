@@ -107,7 +107,6 @@ import Tables from '_c/tables'
 import { getUserTableData } from '@/api/user'
 import { getDeptList } from '@/api/data'
 import { mapGetters } from 'vuex'
-import hasPermissions from '@/libs/permission'
 export default {
   name: 'user',
   components: {
@@ -161,7 +160,11 @@ export default {
             }
           }
         },
-        { title: '创建日期', key: 'createDate' }
+        { title: '创建日期', key: 'createDate',
+          render: (h, params) => {
+            return h("span",this.$dateFormateT(params.row.createDate,"yyyy-MM-dd hh:mm:ss"))
+          } 
+        }
       ],
       tableData: [],
       selectionData: [],
@@ -227,7 +230,9 @@ export default {
     ...mapGetters(['permissions'])
   },
   methods: {
-    hasPermissions,
+    hasPermissions(data) {
+      return this.$hasPermissions(data)
+    },
     handleSelection (data) {
       this.selectionData = data
     },

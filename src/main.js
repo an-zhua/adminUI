@@ -10,6 +10,7 @@ import config from '@/config'
 import importDirective from '@/directive'
 import { directive as clickOutside } from 'v-click-outside-x'
 import installPlugin from '@/plugin'
+import global from '@/libs/global'
 import './index.less'
 import '@/assets/icons/iconfont.css'
 import TreeTable from 'tree-table-vue'
@@ -22,6 +23,7 @@ import 'v-org-tree/dist/v-org-tree.css'
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)
 })
+Vue.use(global)
 Vue.use(TreeTable)
 Vue.use(VOrgTree)
 /**
