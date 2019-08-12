@@ -35,7 +35,7 @@
               <Input v-model="formValidate.component" placeholder="请输入前端组件地址"></Input>
             </FormItem>
             <FormItem>
-              <Button v-if="res_edit" type="primary" @click="handleSubmit('formValidate')">提交</Button>
+              <Button v-if="hasPermissions('res_edit')" type="primary" @click="handleSubmit('formValidate')">提交</Button>
               <Button @click="handleReset('formValidate')" style="margin-left: 8px">重置</Button>
             </FormItem>
           </Form>
