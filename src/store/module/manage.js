@@ -28,7 +28,7 @@ export default {
     },
 
     baseIs (state, { h, params }) {
-      if (params === '1') {
+      if (params === 1) {
         state.baseIsResult = h('span', [h('span', { style: { color: '#0d8c12' } }, '是')])
         return h('span', [h('span', { style: { color: '#0d8c12' } }, '是')])
       } else {
