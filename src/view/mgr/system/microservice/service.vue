@@ -104,7 +104,6 @@
 import Tables from '_c/tables'
 import { getServiceTableData } from '@/api/system/data'
 import { mapMutations, mapState } from 'vuex'
-import hasPermissions from '@/libs/permission'
 import {formatDate, baseIs} from '@/api/base'
 export default {
   name: 'service',
