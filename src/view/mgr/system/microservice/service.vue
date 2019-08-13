@@ -14,9 +14,11 @@
       </Form>
       <div style="padding-bottom:10px">
         <ButtonGroup>
-          <Button v-if="hasPermissions('service_add')" type="info" @click="add">新增</Button>
-          <Button v-if="hasPermissions('service_edit')" type="success" @click="edit">修改</Button>
-          <Button v-if="hasPermissions('service_del')" type="warning" @click="del">删除</Button>
+          <Button v-if="hasPermissions('service_add')" type="info" @click="add">新增服务</Button>
+          <Button v-if="hasPermissions('service_edit')" type="success" @click="edit">修改服务</Button>
+          <Button v-if="hasPermissions('service_del')" type="warning" @click="del">删除服务</Button>
+          <Button v-if="hasPermissions('service_config')" type="success" @click="configManage">配置管理</Button>
+          <Button v-if="hasPermissions('service_route')" type="info" @click="routeManage">路由管理</Button>
         </ButtonGroup>
       </div>
       <Table
@@ -54,13 +56,13 @@
       >
         <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
           <FormItem label="服务名称" prop="serviceName">
-            <Input v-model="formValidate.serviceName" placeholder="请输入服务名称"></Input>
+            <Input v-model="formValidate.serviceName" placeholder="请输入服务名称" v-bind:readonly="isReadOnly"></Input>
           </FormItem>
           <FormItem label="部署服务器IP" prop="serviceIp">
             <Input v-model="formValidate.serviceIp" placeholder="请输入部署机器ip"></Input>
           </FormItem>
           <FormItem label="服务端口号" prop="servicePort">
-            <Input v-model="formValidate.servicePort" placeholder="请输入端口号"></Input>
+            <Input v-model="formValidate.servicePort" placeholder="请输入端口号" v-bind:readonly="isReadOnly"></Input>
           </FormItem>
           <FormItem label="是否自动创建config" prop="isCreateConfig">
             <RadioGroup v-model="formValidate.isCreateConfig">
@@ -98,20 +100,31 @@
       </Modal>
     </div>
 
+    <div>
+      <Modal
+        v-model="configModel"
+        title="配置信息">
+        <Config :applicationName="application"/>
+      </Modal>
+
+    </div>
+
   </div>
 </template>
 <script>
 import Tables from '_c/tables'
-import { getServiceTableData } from '@/api/system/data'
-import { mapMutations, mapState } from 'vuex'
+import { getServiceTableData, addService, updateService, deleteService} from '@/api/system/data'
 import {formatDate, baseIs} from '@/api/base'
+import Config from '../config/config'
 export default {
   name: 'service',
   components: {
-    Tables
+    Tables,
+    Config
   },
   data () {
     return {
+      configModel: false,
       tableHeight: 300,
       tableLoading: true,
       modalLoading: true,
@@ -190,6 +203,7 @@ export default {
       },
       title: '',
       formValidate: {
+        id: '',
         serviceName: '',
         serviceIp: '',
         servicePort: '',
@@ -199,6 +213,7 @@ export default {
         isUseRabbitmq: '0',
         remark: ''
       },
+      isReadOnly: false,
       ruleValidate: {
         serviceName: [
           {
@@ -214,20 +229,15 @@ export default {
             trigger: 'blur'
           }
         ]
-      }
+      },
+
+      application: '111'
     }
   },
-  computed: {
-    ...mapState({
-      manage: state => state.manage
-    }),
-    ...mapMutations([
-      'formatDate',
-      'baseIs'
-    ])
-  },
   methods: {
-    hasPermissions,
+    hasPermissions(data) {
+      return this.$hasPermissions(data)
+    },
     handleSelection (data) {
       this.selectionData = data
     },
@@ -259,6 +269,7 @@ export default {
     add () {
       this.title = '新增'
       this.formModal = true
+      this.isReadOnly = false
     },
     edit () {
       if (this.selectionData === false || this.selectionData.length !== 1) {
@@ -267,10 +278,16 @@ export default {
       }
       this.title = '修改'
       this.formModal = true
-      this.formValidate.nickName = this.selectionData[0].nickName
-      this.formValidate.userName = this.selectionData[0].userName
-      this.formValidate.mail = this.selectionData[0].email
-      this.formValidate.date = this.selectionData[0].createTime
+      this.isReadOnly = true
+      this.formValidate.id = this.selectionData[0].id
+      this.formValidate.serviceName = this.selectionData[0].serviceName
+      this.formValidate.serviceIp = this.selectionData[0].serviceIp
+      this.formValidate.servicePort = this.selectionData[0].servicePort
+      this.formValidate.isCreateConfig = this.selectionData[0].isCreateConfig.toString()
+      this.formValidate.isUseMysql = this.selectionData[0].isUseMysql.toString()
+      this.formValidate.isUseRedis = this.selectionData[0].isUseRedis.toString()
+      this.formValidate.isUseRabbitmq = this.selectionData[0].isUseRabbitmq.toString()
+      this.formValidate.remark = this.selectionData[0].remark
     },
     del () {
       if (this.selectionData === false || this.selectionData.length === 0) {
@@ -281,21 +298,60 @@ export default {
         title: '提示',
         content: '此操作将永久删除, 是否继续?',
         onOk: () => {
-          // 删除
-          this.getData()
+          deleteService(this.formValidate.selectionData[0].id)
+            .then(res => {
+              this.getData()
+              this.$Message.success(res.data.msg)
+            }).catch(err => {
+            console.log(err)
+          })
         }
       })
     },
     handleSubmit (name) {
       this.$refs[name].validate(valid => {
         if (valid) {
-          this.$Message.success('Success!')
-          this.formModal = false
-          this.handleReset(name)
+          let data = this.formValidate;
+          if(!this.formValidate.id){
+            addService(data)
+              .then(res => {
+                this.getData()
+                this.handleReset (name)
+                this.formModal = false
+                this.$Message.success(res.data.msg)
+              }).catch(err => {
+              this.tableLoading = false;
+              console.log(err)
+            })
+          }else{
+            updateService(data)
+              .then(res => {
+                this.getData()
+                this.handleReset (name)
+                this.formModal = false
+                this.$Message.success(res.data.msg)
+              }).catch(err => {
+              this.tableLoading = false;
+              console.log(err)
+            })
+          }
         } else {
           this.handModelLoading(name)
         }
       })
+    },
+    configManage(){
+      if (this.selectionData === false || this.selectionData.length === 0) {
+        this.$Message.warning('请至少选择一条数据')
+        return
+      }else{
+        this.configModel = true
+        this.application = this.selectionData[0].serviceName
+        Config.methods.getData()
+      }
+    },
+    routeManage(){
+
     },
     handleReset (name) {
       this.$refs[name].resetFields()
@@ -313,7 +369,7 @@ export default {
   mounted () {
     this.getData()
     // 设置表格高度
-    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 160
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 160;
   }
 }
 </script>
