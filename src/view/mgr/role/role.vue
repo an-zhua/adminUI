@@ -2,23 +2,8 @@
   <div>
     <Card>
       <Form ref="searchMap" :model="searchMap" inline :label-width="100">
-        <FormItem label="角色名称" prop="name">
-          <Input clearable placeholder="输入角色名称搜索" v-model="searchMap.name"/>
-        </FormItem>
-        <FormItem label="创建日期">
-          <Row>
-            <Col span="11">
-              <FormItem prop="createTimeS">
-                  <DatePicker type="date" placeholder="Select date" v-model="searchMap.createTimeS"></DatePicker>
-              </FormItem>
-            </Col>
-            <Col span="2" style="text-align: center">-</Col>
-            <Col span="11">
-              <FormItem prop="createTimeE">
-                  <DatePicker type="date" placeholder="Select date" v-model="searchMap.createTimeE"></DatePicker>
-              </FormItem>
-            </Col>
-          </Row>
+        <FormItem label="角色名称" prop="roleName">
+          <Input clearable placeholder="输入角色名称搜索" v-model="searchMap.roleName"/>
         </FormItem>
         <FormItem>
           <Button @click="getData" type="primary">
@@ -71,18 +56,18 @@
         @on-cancel="handleReset('formValidate')"
       >
         <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
-          <FormItem label="角色名字" prop="name">
-            <Input v-model="formValidate.name" placeholder="Enter role name"></Input>
+          <FormItem label="角色名字" prop="roleName">
+            <Input v-model="formValidate.roleName" placeholder="请输入角色名称"></Input>
           </FormItem>
           <FormItem label="角色代码" prop="roleCode">
-            <Input v-model="formValidate.roleCode" placeholder="Enter role roleCode"></Input>
+            <Input v-model="formValidate.roleCode" placeholder="请输入角色代码"></Input>
           </FormItem>
           <FormItem label="备注">
             <Input
-              v-model="formValidate.roleDesc"
+              v-model="formValidate.remark"
               type="textarea"
               :autosize="{minRows: 2,maxRows: 5}"
-              placeholder="Enter something..."
+              placeholder="请输入角色备注"
             ></Input>
           </FormItem>
         </Form>
@@ -96,8 +81,8 @@
         @on-cancel="handleReset('authForm')"
       >
         <Form ref="authForm" :model="authFrom" :label-width="80">
-          <FormItem prop="permissionId">
-						<Tree ref="tree" :data="permissionList" show-checkbox multiple check-strictly></Tree>
+          <FormItem prop="resIds">
+						<Tree ref="tree" :data="resourcesList" show-checkbox multiple check-strictly></Tree>
           </FormItem>
         </Form>
       </Modal>
@@ -158,24 +143,22 @@ export default {
         size: 10
       },
       searchMap: {
-        name: '',
-        createTimeS: '',
-        createTimeE: ''
+        roleName: ''
       },
       title: '',
       formValidate: {
         id: '',
-        name: '',
+        roleName: '',
         roleCode: '',
-        roleDesc: ''
+        remark: ''
       },
-      permissionList: [],
+      resourcesList: [],
 			authFrom: {
 				roleId: '',
-				permissionId: []
+				resIds: []
 			},
       ruleValidate: {
-        name: [
+        roleName: [
           {
             required: true,
             message: 'The name cannot be empty',
@@ -191,9 +174,6 @@ export default {
         ]
       }
     }
-  },
-  computed: {
-    ...mapGetters(['permissions'])
   },
   methods: {
     hasPermissions(data) {
@@ -238,9 +218,9 @@ export default {
       this.title = '修改'
       this.formModal = true
       this.formValidate.id = this.selectionData[0].id
-      this.formValidate.name = this.selectionData[0].name
+      this.formValidate.roleName = this.selectionData[0].roleName
       this.formValidate.roleCode = this.selectionData[0].roleCode
-      this.formValidate.roleDesc = this.selectionData[0].roleDesc
+      this.formValidate.remark = this.selectionData[0].remark
     },
     del () {
       if (this.selectionData === false || this.selectionData.length === 0) {
@@ -251,8 +231,15 @@ export default {
         title: '提示',
         content: '此操作将永久删除, 是否继续?',
         onOk: () => {
+          let ids = ''
+          for (let i = 0; i < this.selectionData.length; i++) {
+            if(!ids) {
+              ids += ',' + this.selectionData[i].id
+            }
+            ids = this.selectionData[i].id
+          }
           // 删除
-          deleteRole(this.selectionData[0].id).then(res => {
+          deleteRole(ids).then(res => {
             this.getData()
             this.$Message.success(res.data.msg)
           }).catch(err => {
@@ -293,9 +280,9 @@ export default {
             if(checkedList != null && checkedList.length > 0) {
               for(let index in checkedList) {
                 if(index == 0) {
-                  data.permissionId = checkedList[index].id
+                  data.resIds = checkedList[index].id
                 }else {
-                  data.permissionId += ',' + checkedList[index].id
+                  data.resIds += ',' + checkedList[index].id
                 }
               }
             }
@@ -332,13 +319,13 @@ export default {
 		auth (row, index) {
       this.authModal = true
       this.authFrom.roleId = row.id
-			this.loadPermissionList(row)
+			this.loadResources(row)
 		},
-		loadPermissionList (row) {
+		loadResources (row) {
       let data = {}
       data.roleId = row.id
       getAuthTree(data).then(res => {
-        this.permissionList = res.data.data
+        this.resourcesList = res.data.data
       })
     }
   },

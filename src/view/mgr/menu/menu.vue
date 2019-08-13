@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { getMenuTree, addMenu, updateMenu } from '@/api/data'
+import { getMenuTree, addMenu, updateMenu, deleteMenu } from '@/api/data'
 import { mapGetters } from 'vuex'
 export default {
   name: 'menu',
@@ -105,7 +105,19 @@ export default {
       this.formValidate.parentId = this.currentId
     },
     handleDel: function () {
-
+      this.$Modal.confirm({
+        title: '提示',
+        content: '此操作将永久删除, 是否继续?',
+        onOk: () => {
+          // 删除
+          deleteMenu(this.currentId).then(res => {
+            this.getData()
+            this.$Message.success(res.data.msg)
+          }).catch(err => {
+            this.getData()
+          })
+        }
+      })
     },
     handleSubmit (name) {
       this.$refs[name].validate(valid => {

@@ -93,6 +93,13 @@ export const updateMenu = param => {
   })
 }
 
+export const deleteMenu = id => {
+  return axios.request({
+    url: '/user/baseResources/delete/' + id,
+    method: 'delete'
+  })
+}
+
 export const getDragList = () => {
   return axios.request({
     url: 'get_drag_list',
