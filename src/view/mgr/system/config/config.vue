@@ -12,7 +12,7 @@
           <Input clearable placeholder="输入配置的value搜索" v-model="searchMap.value1" />
         </FormItem>
         <FormItem>
-          <Button @click="getData" type="primary">
+          <Button @click="getData()" type="primary">
             <Icon type="search"/>&nbsp;&nbsp;搜索
           </Button>
           <Button @click="handleReset('searchMap')" style="margin-left: 8px">重置</Button>
@@ -55,7 +55,7 @@
             <Input v-model="formValidate.value1" placeholder="请输入配置中value的值"></Input>
           </FormItem>
           <FormItem label="应用名" prop="application">
-            <Input v-model="formValidate.application" placeholder="请输入应用名" v-bind:readonly="isReadOnly"></Input>
+            <Input v-model="formValidate.application" placeholder="请输入应用名" readonly></Input>
           </FormItem>
           <FormItem label="环境" prop="profile">
             <Input v-model="formValidate.profile" placeholder="请输入环境" v-bind:readonly="isReadOnly"></Input>
@@ -64,7 +64,7 @@
             <Input v-model="formValidate.label" placeholder="请输入分支" v-bind:readonly="isReadOnly"></Input>
           </FormItem>
           <FormItem label="排序" prop="sort">
-            <Input v-model="formValidate.sort" placeholder="请输入排序" v-bind:readonly="isReadOnly"></Input>
+            <InputNumber :min="1" v-model="formValidate.sort" placeholder="请输入排序" v-bind:readonly="isReadOnly"></InputNumber>
           </FormItem>
           <FormItem label="备注" prop="remark">
             <Input
@@ -87,6 +87,18 @@
     name: 'config',
     components: {
       Tables
+    },
+    computed: {
+      name(){
+        return this.formValidate.application
+      }
+    },
+    watch: {
+      name(newValue, oldValue){
+        if(!newValue){
+          this.formValidate.application = oldValue;
+        }
+      }
     },
     data () {
       return {
@@ -118,7 +130,7 @@
         searchMap: {
           key1: '',
           value1: '',
-          application: ''
+          application: 'initData'
         },
         title: '',
         formValidate: {
@@ -128,7 +140,7 @@
           application: '',
           profile: 'dev',
           label: 'master',
-          sort: '0',
+          sort: 1,
           remark: ''
         },
         isReadOnly: false,
@@ -157,13 +169,15 @@
       handleSelection (data) {
         this.selectionData = data
       },
-      getData (applicationName = 'initDate') {
-        if(applicationName === 'initDate'){
+      // 父组件会调用这个getData，传递一个参数applicationName，同时把这个参数赋给this.searchMap.application、this.formValidate.application
+      getData (applicationName = this.searchMap.application) {
+        if(applicationName === 'initData'){
           return
         }
         this.searchMap.application = applicationName
+        this.formValidate.application = applicationName
         let data = {
-          application: this.searchMap.application,
+          application: applicationName,
           key1: this.searchMap.key1,
           value1: this.searchMap.value1
         }
@@ -191,13 +205,12 @@
         this.formModal = true
         this.isReadOnly = true
         this.formValidate.id = this.selectionData[0].id
-        this.formValidate.serviceName = this.selectionData[0].serviceName
-        this.formValidate.serviceIp = this.selectionData[0].serviceIp
-        this.formValidate.servicePort = this.selectionData[0].servicePort
-        this.formValidate.isCreateConfig = this.selectionData[0].isCreateConfig.toString()
-        this.formValidate.isUseMysql = this.selectionData[0].isUseMysql.toString()
-        this.formValidate.isUseRedis = this.selectionData[0].isUseRedis.toString()
-        this.formValidate.isUseRabbitmq = this.selectionData[0].isUseRabbitmq.toString()
+        this.formValidate.key1 = this.selectionData[0].key1
+        this.formValidate.value1 = this.selectionData[0].value1
+        this.formValidate.application = this.selectionData[0].application
+        this.formValidate.profile = this.selectionData[0].profile
+        this.formValidate.label = this.selectionData[0].label
+        this.formValidate.sort = this.selectionData[0].sort
         this.formValidate.remark = this.selectionData[0].remark
       },
       del () {

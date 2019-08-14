@@ -346,7 +346,9 @@ export default {
         return
       }else{
         this.configModel = true
+        //在这里调用的 父组件   好乱
         this.$refs.Config.getData(this.selectionData[0].serviceName);
+        console.log(this.selectionData[0].serviceName,'44')
       }
     },
     routeManage(){
