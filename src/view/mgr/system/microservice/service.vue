@@ -103,8 +103,10 @@
     <div>
       <Modal
         v-model="configModel"
-        title="配置信息">
-        <Config :applicationName="application"/>
+        title="配置信息"
+        width="80%"
+        :styles="{top: '15px'}">
+        <Config ref="Config"/>
       </Modal>
 
     </div>
@@ -120,7 +122,7 @@ export default {
   name: 'service',
   components: {
     Tables,
-    Config
+    Config: Config
   },
   data () {
     return {
@@ -229,9 +231,7 @@ export default {
             trigger: 'blur'
           }
         ]
-      },
-
-      application: '111'
+      }
     }
   },
   methods: {
@@ -346,8 +346,7 @@ export default {
         return
       }else{
         this.configModel = true
-        this.application = this.selectionData[0].serviceName
-        Config.methods.getData()
+        this.$refs.Config.getData(this.selectionData[0].serviceName);
       }
     },
     routeManage(){
@@ -369,7 +368,7 @@ export default {
   mounted () {
     this.getData()
     // 设置表格高度
-    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 160;
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 170;
   }
 }
 </script>

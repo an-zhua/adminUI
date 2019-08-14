@@ -3,18 +3,24 @@
     <Card>
       <Form ref="searchMap" :model="searchMap" inline :label-width="100">
         <FormItem label="服务名" prop="application">
-          <Input clearable placeholder="输入服务名搜索" v-model="searchMap.application"/>
+          <Input clearable placeholder="输入服务名搜索" v-model="searchMap.application" readonly/>
+        </FormItem>
+        <FormItem label="配置的key" prop="key1">
+          <Input clearable placeholder="输入配置的key搜索" v-model="searchMap.key1" />
+        </FormItem>
+        <FormItem label="配置的value" prop="value1">
+          <Input clearable placeholder="输入配置的value搜索" v-model="searchMap.value1" />
         </FormItem>
         <FormItem>
           <Button @click="getData" type="primary">
-            <Icon type="search"/>&nbsp;&nbsp;搜索{{applicationName}}
+            <Icon type="search"/>&nbsp;&nbsp;搜索
           </Button>
           <Button @click="handleReset('searchMap')" style="margin-left: 8px">重置</Button>
         </FormItem>
       </Form>
       <div style="padding-bottom:10px">
         <ButtonGroup>
-          <Button v-if="hasPermissions('service_add')" type="info" @click="add">新增服务</Button>
+          <Button v-if="hasPermissions('config_add')" type="info" @click="add">新增服务</Button>
         </ButtonGroup>
       </div>
       <Table
@@ -24,8 +30,12 @@
         :loading="tableLoading"
         :data="tableData"
         :height="tableHeight"
-        @on-selection-change="handleSelection"
-      ></Table>
+        @on-selection-change="handleSelection">
+        <template slot-scope="{ row, index }" slot="handler">
+          <Button v-if="hasPermissions('config_edit')" type="info" size="small" style="margin-right: 5px" @click="update(row, index)">修改</Button>
+          <Button v-if="hasPermissions('config_del')" type="warning" size="small" style="margin-right: 5px" @click="del(row, index)">删除</Button>
+        </template>
+      </Table>
     </Card>
 
     <div>
@@ -78,9 +88,6 @@
     components: {
       Tables
     },
-    props:{
-      applicationName:String
-    },
     data () {
       return {
         tableHeight: 300,
@@ -89,12 +96,12 @@
         columns: [
           { type: 'selection', width: 60, align: 'center' },
           { type: 'index', width: 60, align: 'center' },
-          { title: '配置中key', key: 'key1', sortable: true, width: 140 },
-          { title: '配置中value', key: 'value1', sortable: true, width: 140 },
+          { title: '配置中key', key: 'key1', sortable: true, width: 260 },
+          { title: '配置中value', key: 'value1', sortable: true, width: 260 },
           { title: '服务名称', key: 'application', sortable: true, width: 140 },
-          { title: '环境', key: 'profile', sortable: true, width: 140 },
-          { title: '分支', key: 'label', sortable: true, width: 140 },
-          { title: '排序', key: 'sort', sortable: true, width: 140 },
+          { title: '环境', key: 'profile', sortable: true, width: 100 },
+          { title: '分支', key: 'label', sortable: true, width: 100 },
+          { title: '排序', key: 'sort', sortable: true, width: 100 },
           {
             title: '创建日期',
             key: 'createDate',
@@ -102,7 +109,8 @@
             render: (h, params) => {
               return h('span', formatDate(params.row.createDate, 'yyyy-MM-dd hh:mm:ss'));
             }
-          }
+          },
+          { title: '操作', key: 'handler', slot: 'handler', width: 140 }
         ],
         tableData: [],
         selectionData: [],
@@ -110,7 +118,7 @@
         searchMap: {
           key1: '',
           value1: '',
-          application: this.applicationName
+          application: ''
         },
         title: '',
         formValidate: {
@@ -149,21 +157,21 @@
       handleSelection (data) {
         this.selectionData = data
       },
-      getData () {
-        let data = {
-          application: this.applicationName
+      getData (applicationName = 'initDate') {
+        if(applicationName === 'initDate'){
+          return
         }
-        console.log("111111", this.searchMap)
-        if(!this.searchMap){
-
-        }else{
-          data = this.searchMap
+        this.searchMap.application = applicationName
+        let data = {
+          application: this.searchMap.application,
+          key1: this.searchMap.key1,
+          value1: this.searchMap.value1
         }
         console.log("data", data)
         this.tableLoading = true
         getConfigTableData(data)
           .then(res => {
-            this.tableData = res.data.data.records
+            this.tableData = res.data.data
             this.tableLoading = false
           }).catch(err => {
           this.tableLoading = false
@@ -257,8 +265,9 @@
     },
 
     mounted () {
+      this.getData()
       // 设置表格高度
-      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 160
+      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 300
     }
   }
 </script>
