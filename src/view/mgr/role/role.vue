@@ -62,7 +62,7 @@
           <FormItem label="角色代码" prop="roleCode">
             <Input v-model="formValidate.roleCode" placeholder="请输入角色代码"></Input>
           </FormItem>
-          <FormItem label="备注">
+          <FormItem label="备注" prop="remark">
             <Input
               v-model="formValidate.remark"
               type="textarea"
@@ -193,10 +193,9 @@ export default {
     getData () {
       let data = {
         current: this.pageInfo.current,
-        size: this.pageInfo.size,
-        searchMap: {}
+        size: this.pageInfo.size
       }
-      data.searchMap = Object.assign({}, this.searchMap)
+      data = Object.assign({}, data, this.searchMap)
       this.tableLoading = true
       getRoleTableData(data).then(res => {
         this.tableData = res.data.data.records
@@ -208,6 +207,7 @@ export default {
     },
     add () {
       this.title = '新增'
+      this.formValidate.id = null
       this.formModal = true
     },
     edit () {
@@ -238,8 +238,10 @@ export default {
             }
             ids = this.selectionData[i].id
           }
+          let data = {}
+          data['ids'] = ids
           // 删除
-          deleteRole(ids).then(res => {
+          deleteRole(data).then(res => {
             this.getData()
             this.$Message.success(res.data.msg)
           }).catch(err => {
@@ -287,8 +289,8 @@ export default {
               }
             }
             updateRoleAuth(data).then(res => {
-              this.$Message.success(res.data.msg)
               this.authModal = false
+              this.$Message.success(res.data.msg)
             }).catch(err => {
               this.handModelLoading(name)
             })
