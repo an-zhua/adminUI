@@ -5,21 +5,6 @@
         <FormItem label="用户名" prop="nickName">
           <Input clearable placeholder="输入用户名搜索" v-model="searchMap.nickName"/>
         </FormItem>
-        <FormItem label="创建日期">
-          <Row>
-            <Col span="11">
-              <FormItem prop="createTimeS">
-                  <DatePicker type="date" placeholder="Select date" v-model="searchMap.createTimeS"></DatePicker>
-              </FormItem>
-            </Col>
-            <Col span="2" style="text-align: center">-</Col>
-            <Col span="11">
-              <FormItem prop="createTimeE">
-                  <DatePicker type="date" placeholder="Select date" v-model="searchMap.createTimeE"></DatePicker>
-              </FormItem>
-            </Col>
-          </Row>
-        </FormItem>
         <FormItem>
           <Button @click="getData" type="primary">
             <Icon type="search"/>&nbsp;&nbsp;搜索
@@ -73,25 +58,15 @@
           <FormItem label="用户名" prop="userName">
             <Input v-model="formValidate.userName" placeholder="请输入用户名"></Input>
           </FormItem>
-          <FormItem label="邮箱" prop="mail">
-            <Input v-model="formValidate.mail" placeholder="请输入邮箱"></Input>
+          <FormItem label="手机号" prop="phone">
+            <Input v-model="formValidate.userName" placeholder="请输入手机号"></Input>
           </FormItem>
-          <FormItem label="生日" prop="date">
-            <Row>
-              <Col span="11">
-                <DatePicker type="date" placeholder="Select date" v-model="formValidate.date"></DatePicker>
-              </Col>
-            </Row>
+          <FormItem label="邮箱" prop="email">
+            <Input v-model="formValidate.email" placeholder="请输入邮箱"></Input>
           </FormItem>
-          <FormItem label="性别" prop="gender">
-            <RadioGroup v-model="formValidate.gender">
-              <Radio label="male">Male</Radio>
-              <Radio label="female">Female</Radio>
-            </RadioGroup>
-          </FormItem>
-          <FormItem label="简介" prop="avatar">
+          <FormItem label="个性签名" prop="content">
             <Input
-              v-model="formValidate.avatar"
+              v-model="formValidate.content"
               type="textarea"
               :autosize="{minRows: 2,maxRows: 5}"
               placeholder="Enter something..."
@@ -104,8 +79,7 @@
 </template>
 <script>
 import Tables from '_c/tables'
-import { getUserTableData } from '@/api/user'
-import { getDeptList } from '@/api/data'
+import { getUserTableData, addUser, updateUser, deleteUser } from '@/api/user'
 import { mapGetters } from 'vuex'
 export default {
   name: 'user',
@@ -124,13 +98,13 @@ export default {
         { title: '用户名', key: 'userName', sortable: true, width: 120 },
         { title: '手机号', key: 'phone', width: 120 },
         { title: '邮箱', key: 'email', width: 180 },
-        { title: 'wxLink', key: 'wxLink' },
-        { title: 'qqLink', key: 'qqLink' },
+        { title: 'wxLink', key: 'wxLink', width: 200 },
+        { title: 'qqLink', key: 'qqLink', width: 200 },
         { title: '锁定标志',
           key: 'isLock',
           width: 100,
           render: (h, params) => {
-            if (params.row.isLock === '1') {
+            if (params.row.isLock === 1) {
               return h('span', [
                 h('span', {
                   style: {
@@ -147,7 +121,7 @@ export default {
           key: 'isDelete',
           width: 100,
           render: (h, params) => {
-            if (params.row.isDelete === '1') {
+            if (params.row.isDelete === 1) {
               return h('span', [
                 h('span', {
                   style: {
@@ -160,7 +134,7 @@ export default {
             }
           }
         },
-        { title: '创建日期', key: 'createDate',
+        { title: '创建日期', key: 'createDate', width: 180,
           render: (h, params) => {
             return h("span",this.$dateFormateT(params.row.createDate,"yyyy-MM-dd hh:mm:ss"))
           } 
@@ -175,19 +149,17 @@ export default {
         size: 10
       },
       searchMap: {
-        userName: '',
-        createTimeS: '',
-        createTimeE: ''
+        userName: ''
       },
       title: '',
       deptList: [],
       formValidate: {
+        id: '',
         nickName: '',
         userName: '',
-        mail: '',
-        gender: '',
-        date: '',
-        avatar: ''
+        email: '',
+        phone: '',
+        content: ''
       },
       ruleValidate: {
         nickName: [
@@ -204,24 +176,20 @@ export default {
             trigger: 'blur'
           }
         ],
-        mail: [
+        phone: [
+          {
+            required: true,
+            message: '手机号不能为空',
+            trigger: 'blur'
+          }
+        ],
+        email: [
           {
             required: true,
             message: '邮箱不能为空',
             trigger: 'blur'
           },
           { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
-        ],
-        gender: [
-          { required: true, message: '请选择性别', trigger: 'change' }
-        ],
-        date: [
-          {
-            required: true,
-            type: 'date',
-            message: '请选择出生日期',
-            trigger: 'change'
-          }
         ]
       }
     }
@@ -250,10 +218,9 @@ export default {
     getData () {
       let data = {
         current: this.pageInfo.current,
-        size: this.pageInfo.size,
-        searchMap: {}
+        size: this.pageInfo.size
       }
-      data.searchMap = Object.assign({}, this.searchMap)
+       data = Object.assign({}, data, this.searchMap)
       this.tableLoading = true
       getUserTableData(data).then(res => {
         this.tableData = res.data.data.records
@@ -266,6 +233,7 @@ export default {
     add () {
       this.title = '新增'
       this.formModal = true
+      this.formValidate.id = null
     },
     edit () {
       if (this.selectionData === false || this.selectionData.length !== 1) {
@@ -274,10 +242,12 @@ export default {
       }
       this.title = '修改'
       this.formModal = true
+      this.formValidate.id = this.selectionData[0].id
       this.formValidate.nickName = this.selectionData[0].nickName
       this.formValidate.userName = this.selectionData[0].userName
-      this.formValidate.mail = this.selectionData[0].email
-      this.formValidate.date = this.selectionData[0].createTime
+      this.formValidate.email = this.selectionData[0].email
+      this.formValidate.phone = this.selectionData[0].phone
+      this.formValidate.content = this.selectionData[0].content
     },
     del () {
       if (this.selectionData === false || this.selectionData.length === 0) {
@@ -288,17 +258,50 @@ export default {
         title: '提示',
         content: '此操作将永久删除, 是否继续?',
         onOk: () => {
+          let ids = ''
+          for (let i = 0; i < this.selectionData.length; i++) {
+            if(!ids) {
+              ids += ',' + this.selectionData[i].id
+            }
+            ids = this.selectionData[i].id
+          }
+          let data = {}
+          data['ids'] = ids
           // 删除
-          this.getData()
+          deleteUser(data).then(res => {
+            this.getData()
+            this.$Message.success(res.data.msg)
+          }).catch(err => {
+            this.getData()
+          })
         }
       })
     },
     handleSubmit (name) {
       this.$refs[name].validate(valid => {
         if (valid) {
-          this.$Message.success('Success!')
-          this.formModal = false
-          this.handleReset(name)
+          let data = this.formValidate
+            if ( !this.formValidate.id ) {//新增
+              addUser(data).then(res => {
+                this.getData()
+                this.handleReset (name)
+                this.formModal = false
+                this.$Message.success(res.data.msg)
+              }).catch(err => {
+                this.getData()
+                this.handModelLoading(name)
+              })
+            } else {//修改
+              updateUser(data).then(res => {
+                this.getData()
+                this.handleReset (name)
+                this.formModal = false
+                this.$Message.success(res.data.msg)
+              }).catch(err => {
+                this.getData()
+                this.handModelLoading(name)
+              })
+            }
         } else {
           this.handModelLoading(name)
         }

@@ -46,9 +46,10 @@ export const updateRole = param => {
   })
 }
 
-export const deleteRole = id => {
+export const deleteRole = param => {
   return axios.request({
-    url: '/user/baseRole/delete/' + id,
+    url: '/user/baseRole/delete',
+    params: param,
     method: 'delete'
   })
 }

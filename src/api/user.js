@@ -15,6 +15,30 @@ export const getUserTableData = param => {
   })
 }
 
+export const addUser = param => {
+  return axios.request({
+    url: '/user/baseUser/add',
+    params: param,
+    method: 'post'
+  })
+}
+
+export const updateUser = param => {
+  return axios.request({
+    url: '/user/baseUser/update',
+    params: param,
+    method: 'post'
+  })
+}
+
+export const deleteUser = param => {
+  return axios.request({
+    url: '/user/baseUser/delete',
+    params: param,
+    method: 'delete'
+  })
+}
+
 export const getUnreadCount = () => {
   return axios.request({
     url: 'message/count',
