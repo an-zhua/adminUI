@@ -32,8 +32,8 @@
         :height="tableHeight"
         @on-selection-change="handleSelection">
         <template slot-scope="{ row, index }" slot="handler">
-          <Button v-if="hasPermissions('config_edit')" type="info" size="small" style="margin-right: 5px" @click="update(row, index)">修改</Button>
-          <Button v-if="hasPermissions('config_del')" type="warning" size="small" style="margin-right: 5px" @click="del(row, index)">删除</Button>
+          <Button v-if="hasPermissions('config_edit')" type="info" size="small" style="margin-right: 5px" @click="edit(row)">修改</Button>
+          <Button v-if="hasPermissions('config_del')" type="warning" size="small" style="margin-right: 5px" @click="del(row)">删除</Button>
         </template>
       </Table>
     </Card>
@@ -48,6 +48,9 @@
         @on-cancel="handleReset('formValidate')"
       >
         <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
+          <FormItem hidden label="id" prop="id">
+            <Input v-model="formValidate.id" placeholder="无需输入，自动生成" readonly></Input>
+          </FormItem>
           <FormItem label="配置中key的值" prop="key1">
             <Input v-model="formValidate.key1" placeholder="请输入配置中key的值" v-bind:readonly="isReadOnly"></Input>
           </FormItem>
@@ -174,60 +177,60 @@
         if(applicationName === 'initData'){
           return
         }
-        this.searchMap.application = applicationName
-        this.formValidate.application = applicationName
+        this.searchMap.application = applicationName;
+        this.formValidate.application = applicationName;
         let data = {
           application: applicationName,
           key1: this.searchMap.key1,
           value1: this.searchMap.value1
-        }
-        console.log("data", data)
-        this.tableLoading = true
+        };
+        this.tableLoading = true;
         getConfigTableData(data)
           .then(res => {
-            this.tableData = res.data.data
+            this.tableData = res.data.data;
             this.tableLoading = false
           }).catch(err => {
-          this.tableLoading = false
+            console.log(err);
+            this.tableLoading = false
         })
       },
       add () {
-        this.title = '新增'
-        this.formModal = true
+        this.title = '新增';
+        this.formModal = true;
         this.isReadOnly = false
       },
-      edit () {
-        if (this.selectionData === false || this.selectionData.length !== 1) {
-          this.$Message.warning('请选择一条数据')
+      edit (row) {
+        if (!row.id) {
+          this.$Message.warning('请确定数据是否正确')
           return
         }
-        this.title = '修改'
-        this.formModal = true
-        this.isReadOnly = true
-        this.formValidate.id = this.selectionData[0].id
-        this.formValidate.key1 = this.selectionData[0].key1
-        this.formValidate.value1 = this.selectionData[0].value1
-        this.formValidate.application = this.selectionData[0].application
-        this.formValidate.profile = this.selectionData[0].profile
-        this.formValidate.label = this.selectionData[0].label
-        this.formValidate.sort = this.selectionData[0].sort
-        this.formValidate.remark = this.selectionData[0].remark
+        this.title = '修改';
+        this.formModal = true;
+        this.isReadOnly = true;
+        this.formValidate.id = row.id;
+        this.formValidate.key1 = row.key1;
+        this.formValidate.value1 = row.value1;
+        this.formValidate.application = row.application;
+        this.formValidate.profile = row.profile;
+        this.formValidate.label = row.label;
+        this.formValidate.sort = row.sort;
+        this.formValidate.remark = row.remark
       },
-      del () {
-        if (this.selectionData === false || this.selectionData.length === 0) {
-          this.$Message.warning('请至少选择一条数据')
+      del (row) {
+        if (!row.id) {
+          this.$Message.warning('请确定数据是否正确');
           return
         }
         this.$Modal.confirm({
           title: '提示',
           content: '此操作将永久删除, 是否继续?',
           onOk: () => {
-            deleteConfig(this.formValidate.selectionData[0].id)
+            deleteConfig(row.id)
               .then(res => {
-                this.getData()
+                this.getData();
                 this.$Message.success(res.data.msg)
               }).catch(err => {
-              console.log(err)
+                console.log(err)
             })
           }
         })
@@ -239,23 +242,23 @@
             if(!this.formValidate.id){
               addConfig(data)
                 .then(res => {
-                  this.getData()
-                  this.handleReset (name)
-                  this.formModal = false
+                  this.getData();
+                  this.handleReset (name);
+                  this.formModal = false;
                   this.$Message.success(res.data.msg)
                 }).catch(err => {
-                this.tableLoading = false;
+                this.handModelLoading(name);
                 console.log(err)
               })
             }else{
               updateConfig(data)
                 .then(res => {
-                  this.getData()
-                  this.handleReset (name)
-                  this.formModal = false
+                  this.getData();
+                  this.handleReset (name);
+                  this.formModal = false;
                   this.$Message.success(res.data.msg)
                 }).catch(err => {
-                this.tableLoading = false;
+                this.handModelLoading(name);
                 console.log(err)
               })
             }
@@ -269,7 +272,7 @@
       },
       handModelLoading (name) {
         setTimeout(() => {
-          this.modalLoading = false
+          this.modalLoading = false;
           this.$nextTick(() => {
             this.modalLoading = true
           })
@@ -278,7 +281,7 @@
     },
 
     mounted () {
-      this.getData()
+      this.getData();
       // 设置表格高度
       this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 300
     }

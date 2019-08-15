@@ -55,6 +55,9 @@
         @on-cancel="handleReset('formValidate')"
       >
         <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
+          <FormItem hidden label="id" prop="id">
+            <Input v-model="formValidate.id" placeholder="无需输入，自动生成" readonly></Input>
+          </FormItem>
           <FormItem label="服务名称" prop="serviceName">
             <Input v-model="formValidate.serviceName" placeholder="请输入服务名称" v-bind:readonly="isReadOnly"></Input>
           </FormItem>
@@ -242,11 +245,11 @@ export default {
       this.selectionData = data
     },
     pageChange (current) {
-      this.pageInfo.current = current
+      this.pageInfo.current = current;
       this.getData()
     },
     pageSizeChange (size) {
-      this.pageInfo.size = size
+      this.pageInfo.size = size;
       this.getData()
     },
     getData () {
@@ -254,44 +257,44 @@ export default {
         current: this.pageInfo.current,
         size: this.pageInfo.size,
         searchMap: {}
-      }
-      data.searchMap = Object.assign({}, this.searchMap)
-      this.tableLoading = true
+      };
+      data.searchMap = Object.assign({}, this.searchMap);
+      this.tableLoading = true;
       getServiceTableData(data)
         .then(res => {
-          this.tableData = res.data.data.records
-          this.pageInfo.total = res.data.data.total
+          this.tableData = res.data.data.records;
+          this.pageInfo.total = res.data.data.total;
           this.tableLoading = false
         }).catch(err => {
         this.tableLoading = false
       })
     },
     add () {
-      this.title = '新增'
-      this.formModal = true
+      this.title = '新增';
+      this.formModal = true;
       this.isReadOnly = false
     },
     edit () {
       if (this.selectionData === false || this.selectionData.length !== 1) {
-        this.$Message.warning('请选择一条数据')
+        this.$Message.warning('请选择一条数据');
         return
       }
-      this.title = '修改'
-      this.formModal = true
-      this.isReadOnly = true
-      this.formValidate.id = this.selectionData[0].id
-      this.formValidate.serviceName = this.selectionData[0].serviceName
-      this.formValidate.serviceIp = this.selectionData[0].serviceIp
-      this.formValidate.servicePort = this.selectionData[0].servicePort
-      this.formValidate.isCreateConfig = this.selectionData[0].isCreateConfig.toString()
-      this.formValidate.isUseMysql = this.selectionData[0].isUseMysql.toString()
-      this.formValidate.isUseRedis = this.selectionData[0].isUseRedis.toString()
-      this.formValidate.isUseRabbitmq = this.selectionData[0].isUseRabbitmq.toString()
+      this.title = '修改';
+      this.formModal = true;
+      this.isReadOnly = true;
+      this.formValidate.id = this.selectionData[0].id;
+      this.formValidate.serviceName = this.selectionData[0].serviceName;
+      this.formValidate.serviceIp = this.selectionData[0].serviceIp;
+      this.formValidate.servicePort = this.selectionData[0].servicePort;
+      this.formValidate.isCreateConfig = this.selectionData[0].isCreateConfig.toString();
+      this.formValidate.isUseMysql = this.selectionData[0].isUseMysql.toString();
+      this.formValidate.isUseRedis = this.selectionData[0].isUseRedis.toString();
+      this.formValidate.isUseRabbitmq = this.selectionData[0].isUseRabbitmq.toString();
       this.formValidate.remark = this.selectionData[0].remark
     },
     del () {
       if (this.selectionData === false || this.selectionData.length === 0) {
-        this.$Message.warning('请至少选择一条数据')
+        this.$Message.warning('请至少选择一条数据');
         return
       }
       this.$Modal.confirm({
@@ -300,7 +303,7 @@ export default {
         onOk: () => {
           deleteService(this.formValidate.selectionData[0].id)
             .then(res => {
-              this.getData()
+              this.getData();
               this.$Message.success(res.data.msg)
             }).catch(err => {
             console.log(err)
@@ -315,9 +318,9 @@ export default {
           if(!this.formValidate.id){
             addService(data)
               .then(res => {
-                this.getData()
-                this.handleReset (name)
-                this.formModal = false
+                this.getData();
+                this.handleReset (name);
+                this.formModal = false;
                 this.$Message.success(res.data.msg)
               }).catch(err => {
               this.tableLoading = false;
@@ -326,9 +329,9 @@ export default {
           }else{
             updateService(data)
               .then(res => {
-                this.getData()
-                this.handleReset (name)
-                this.formModal = false
+                this.getData();
+                this.handleReset (name);
+                this.formModal = false;
                 this.$Message.success(res.data.msg)
               }).catch(err => {
               this.tableLoading = false;
@@ -342,13 +345,11 @@ export default {
     },
     configManage(){
       if (this.selectionData === false || this.selectionData.length === 0) {
-        this.$Message.warning('请至少选择一条数据')
-        return
+        this.$Message.warning('请至少选择一条数据');
+        return false
       }else{
-        this.configModel = true
-        //在这里调用的 父组件   好乱
+        this.configModel = true;
         this.$refs.Config.getData(this.selectionData[0].serviceName);
-        console.log(this.selectionData[0].serviceName,'44')
       }
     },
     routeManage(){
@@ -359,7 +360,7 @@ export default {
     },
     handModelLoading (name) {
       setTimeout(() => {
-        this.modalLoading = false
+        this.modalLoading = false;
         this.$nextTick(() => {
           this.modalLoading = true
         })
@@ -368,7 +369,7 @@ export default {
   },
 
   mounted () {
-    this.getData()
+    this.getData();
     // 设置表格高度
     this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 170;
   }
