@@ -169,7 +169,6 @@ export default {
     // 初始化菜单路由
     this.$store.dispatch("getUserMenu").then(data => {
       if (!data || data.length === 0) return;
-      this.$router.$avueRouter.formatRoutes(data, true);
     });
     
     this.setTagNavList()

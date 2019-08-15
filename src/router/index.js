@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routers'
-import AvueRouter from './avue-router'
 import store from '@/store'
 import iView from 'iview'
 import { canTurnTo, setTitle, formatRoutes } from '@/libs/util'
@@ -10,24 +9,32 @@ const { homeName } = config
 
 Vue.use(Router)
 const router = new Router({
-  routes,
-  mode: 'history'
+  routes
+  // mode: 'history'
 })
 const LOGIN_PAGE_NAME = 'login'
+var dynamicRouters
 
 const turnTo = (to, access, next) => {
-  // let _routes = routes
-  // let dynamicRouters = router.$avueRouter.routerList
-  // if (dynamicRouters && dynamicRouters.length > 0) {
-  //   _routes = [...routes, ...dynamicRouters]
-  // }
   let _routes = routes
-  if (store.state.user.menuList && store.state.user.menuList.length > 0) {
-    let dynamicRouters = formatRoutes(store.state.user.menuList)
+  let addRouterFlag = false
+  if (!dynamicRouters && store.state.user.menuList && store.state.user.menuList.length > 0) {
+    dynamicRouters = formatRoutes(store.state.user.menuList)
+    router.addRoutes(dynamicRouters) // 动态添加路由
+    addRouterFlag = true
+  }
+  if (dynamicRouters) {
     _routes = [...routes, ...dynamicRouters]
   }
-  if (canTurnTo(to.name, access, _routes)) next() // 有权限，可访问
-  else next({ replace: true, name: 'error_401' }) // 无权限，重定向到401页面
+  if (canTurnTo(to.name, access, _routes)) { // 有权限，可访问
+    if (addRouterFlag) {
+      next({ ...to, replace: true })
+    } else {
+      next()
+    }
+  } else {
+    next({ replace: true, name: 'error_401' }) // 无权限，重定向到401页面
+  } 
 }
 
 router.beforeEach((to, from, next) => {
@@ -70,7 +77,9 @@ router.afterEach(to => {
   window.scrollTo(0, 0)
 })
 
-AvueRouter.install(router, store)
-// 防止刷新路由失效
-router.$avueRouter.formatRoutes(store.state.user.menuList, true)
+if (!dynamicRouters && store.state.user.menuList && store.state.user.menuList.length > 0) {
+  dynamicRouters = formatRoutes(store.state.user.menuList)
+  router.addRoutes(dynamicRouters) // 动态添加路由
+}
+
 export default router
