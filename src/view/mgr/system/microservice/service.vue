@@ -299,9 +299,9 @@ export default {
       }
       this.$Modal.confirm({
         title: '提示',
-        content: '此操作将永久删除, 是否继续?',
+        content: '此操作将永久删除该服务以及该服务对应的所有信息, 是否继续?',
         onOk: () => {
-          deleteService(this.formValidate.selectionData[0].id)
+          deleteService(this.selectionData[0].id)
             .then(res => {
               this.getData();
               this.$Message.success(res.data.msg)
