@@ -226,8 +226,10 @@ export default {
         this.tableData = res.data.data.records
         this.pageInfo.total = res.data.data.total
         this.tableLoading = false
+        this.selectionData = []
       }).catch(err => {
         this.tableLoading = false
+        this.selectionData = []
       })
     },
     add () {
