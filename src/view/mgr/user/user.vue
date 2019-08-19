@@ -58,6 +58,40 @@
           <FormItem label="用户名" prop="userName">
             <Input v-model="formValidate.userName" placeholder="请输入用户名"></Input>
           </FormItem>
+          <FormItem label="头像" prop="avatar">
+            <div class="upload-list" v-for="(item, index) in uploadList" v-bind:key="index">
+              <template v-if="item.status === 'finished'">
+                  <img :src="item.url">
+                  <div class="upload-list-cover">
+                      <Icon type="ios-eye-outline" @click.native="handleView(item.name)"></Icon>
+                      <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
+                  </div>
+              </template>
+              <template v-else>
+                  <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
+              </template>
+            </div>
+            <Upload
+                ref="upload"
+                :show-upload-list="false"
+                :default-file-list="defaultList"
+                :on-success="handleSuccess"
+                :format="['jpg','jpeg','png']"
+                :max-size="500"
+                :on-format-error="handleFormatError"
+                :on-exceeded-size="handleMaxSize"
+                :before-upload="handleBeforeUpload"
+                type="drag"
+                action="//user/minio/updateImg"
+                style="display: inline-block;width:58px;">
+                <div style="width: 58px;height:58px;line-height: 58px;">
+                    <Icon type="ios-camera" size="20"></Icon>
+                </div>
+            </Upload>
+            <Modal title="View Image" v-model="visible">
+                <img :src="'/user/minio/' + imgName + '/large'" v-if="visible" style="width: 100%">
+            </Modal>
+          </FormItem>
           <FormItem label="手机号" prop="phone">
             <Input v-model="formValidate.userName" placeholder="请输入手机号"></Input>
           </FormItem>
@@ -96,6 +130,7 @@ export default {
         { type: 'index', width: 60, align: 'center' },
         { title: '姓名', key: 'nickName', sortable: true, width: 120 },
         { title: '用户名', key: 'userName', sortable: true, width: 120 },
+        { title: '头像', key: 'avatar', width: 150 },
         { title: '手机号', key: 'phone', width: 120 },
         { title: '邮箱', key: 'email', width: 180 },
         { title: 'wxLink', key: 'wxLink', width: 200 },
@@ -152,7 +187,10 @@ export default {
         userName: ''
       },
       title: '',
-      deptList: [],
+      defaultList: [],
+      uploadList: [],
+      imgName: '',
+      visible: false,
       formValidate: {
         id: '',
         nickName: '',
@@ -236,6 +274,7 @@ export default {
       this.title = '新增'
       this.formModal = true
       this.formValidate.id = null
+      this.uploadList = []
     },
     edit () {
       if (this.selectionData === false || this.selectionData.length !== 1) {
@@ -247,9 +286,15 @@ export default {
       this.formValidate.id = this.selectionData[0].id
       this.formValidate.nickName = this.selectionData[0].nickName
       this.formValidate.userName = this.selectionData[0].userName
+      this.formValidate.avatar = this.selectionData[0].avatar
       this.formValidate.email = this.selectionData[0].email
       this.formValidate.phone = this.selectionData[0].phone
       this.formValidate.content = this.selectionData[0].content
+
+      let avatar = {}
+      avatar.url = this.selectionData[0].avatar
+      this.uploadList.put(avatar)
+
     },
     del () {
       if (this.selectionData === false || this.selectionData.length === 0) {
@@ -311,6 +356,7 @@ export default {
     },
     handleReset (name) {
       this.$refs[name].resetFields()
+      this.uploadList = []
     },
     handModelLoading (name) {
       setTimeout(() => {
@@ -319,6 +365,41 @@ export default {
           this.modalLoading = true
         })
       }, 500)
+    },
+    handleView (name) {
+      this.imgName = name
+      this.visible = true
+    },
+    handleRemove (file) {
+      const fileList = this.$refs.upload.fileList
+      this.$refs.upload.fileList.splice(fileList.indexOf(file), 1)
+      this.formValidate.avatar = null
+    },
+    handleSuccess (res, file) {
+      file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar'
+      file.name = '7eb99afb9d5f317c912f08b5212fd69a'
+      this.formValidate.avatar = file.url
+    },
+    handleFormatError (file) {
+      this.$Notice.warning({
+          title: '文件格式不合法',
+          desc: '文件' + file.name + '格式不合法,请选择[jpg|png]格式.'
+      });
+    },
+    handleMaxSize (file) {
+      this.$Notice.warning({
+          title: '文件大小限制',
+          desc: '文件' + file.name + '太大,不能超过500K.'
+      });
+    },
+    handleBeforeUpload () {
+        const check = this.uploadList.length < 1;
+        if (!check) {
+            this.$Notice.warning({
+                title: '只能上传一个文件,请删除原文件再上传'
+            });
+        }
+        return check;
     }
   },
   created () {
@@ -331,4 +412,40 @@ export default {
 }
 </script>
 <style scoped>
+  .upload-list{
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      text-align: center;
+      line-height: 60px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+      position: relative;
+      box-shadow: 0 1px 1px rgba(0,0,0,.2);
+      margin-right: 4px;
+  }
+  .upload-list img{
+      width: 100%;
+      height: 100%;
+  }
+  .upload-list-cover{
+      display: none;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,.6);
+  }
+  .upload-list:hover .upload-list-cover{
+      display: block;
+  }
+  .upload-list-cover i{
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      margin: 0 2px;
+  }
 </style>

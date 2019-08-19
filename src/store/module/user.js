@@ -20,7 +20,7 @@ export default {
   state: {
     // userName: '',
     // userId: '',
-    // avatorImgPath: '',
+    avatorImgPath: '',
     userInfo: {},
     access: '',
     permissions: [],
@@ -154,7 +154,7 @@ export default {
           commit('setUserInfo', {})
           // commit('setUserName', '')
           // commit('setUserId', '')
-          // commit('setAvator', '')
+          commit('setAvator', '')
           commit('setAccessToken', '')
           commit('setRefreshToken', '')
           commit('setExpiresIn', '')
@@ -174,6 +174,7 @@ export default {
           getUserInfo(state.token).then(res => {
             const data = res.data.data
             commit('setUserInfo', data.sysUser)
+            commit('setAvator', data.sysUser.avatar)
             commit('setAccess', data.roles)
             commit('setPermissions', data.permissions)
             commit('setHasGetInfo', true)
