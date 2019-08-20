@@ -60,6 +60,26 @@ export default [
     }
   },
   {
+    path: '/base_info',
+    name: 'base_info',
+    component: Main,
+    meta: {
+      hideInBread: true,
+      hideInMenu: true
+    },
+    children: [
+      {
+        path: 'info_page',
+        name: 'info_page',
+        meta: {
+          icon: 'md-notifications',
+          title: '个人信息'
+        },
+        component: () => import('@/view/single-page/base_info/info_page.vue')
+      }
+    ]
+  },
+  {
     path: '/message',
     name: 'message',
     component: Main,

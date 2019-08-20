@@ -8,6 +8,10 @@ export default {
    */
   title: 'adminUI',
   /**
+   * AES 加密解密Key 必须16位
+   */
+  secretKey: '1234567812345678',
+  /**
    * @description token在Cookie中存储的天数，默认1天
    */
   cookieExpires: 1,

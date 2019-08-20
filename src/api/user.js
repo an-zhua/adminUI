@@ -39,6 +39,14 @@ export const deleteUser = param => {
   })
 }
 
+export const updatePasswd = param => {
+  return axios.request({
+    url: '/user/baseUser/updatePasswd',
+    params: param,
+    method: 'post'
+  })
+}
+
 export const getUnreadCount = () => {
   return axios.request({
     url: 'message/count',
