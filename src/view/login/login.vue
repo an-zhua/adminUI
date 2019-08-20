@@ -30,8 +30,8 @@ export default {
     ]),
     handleSubmit ({ username, password }) {
       this.$Loading.start();
-      let passwd = CryptoJS.AES.encrypt(password, config.secretKey)
-      this.handleLogin({ username, passwd }).then(res => {
+      password = CryptoJS.AES.encrypt(password, config.secretKey)
+      this.handleLogin({ username, password }).then(res => {
         this.getUserInfo().then(res => {
           this.$router.push({
             name: this.$config.homeName
