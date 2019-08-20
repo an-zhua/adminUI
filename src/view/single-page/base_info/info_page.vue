@@ -13,7 +13,7 @@
               <template v-if="item.status === 'finished'">
                   <img :src="item.url">
                   <div class="upload-list-cover">
-                      <Icon type="ios-eye-outline" @click.native="handleView(item.name)"></Icon>
+                      <Icon type="ios-eye-outline" @click.native="handleView(item.bucketName, item.name)"></Icon>
                       <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
                   </div>
               </template>
@@ -32,14 +32,14 @@
                 :on-exceeded-size="handleMaxSize"
                 :before-upload="handleBeforeUpload"
                 type="drag"
-                action="//user/minio/updateImg"
+                action="//user/minio/object/user"
                 style="display: inline-block;width:58px;">
                 <div style="width: 58px;height:58px;line-height: 58px;">
                     <Icon type="ios-camera" size="20"></Icon>
                 </div>
             </Upload>
             <Modal title="View Image" v-model="visible">
-                <img :src="'/user/minio/' + imgName + '/large'" v-if="visible" style="width: 100%">
+                <img :src="'/user/minio/download/' + bucketName + '/' + imgName + ''" v-if="visible" style="width: 100%">
             </Modal>
           </FormItem>
           <FormItem label="手机号" prop="phone">
@@ -90,7 +90,7 @@ export default {
   data () {
     const validatePass = (rule, value, callback) => {
       if (value === '') {
-        callback(new Error('Please enter your password'));
+        callback(new Error('新密码不能为空'));
       } else {
         if (this.formCustom.passwdCheck !== '') {
           // 对第二个密码框单独验证
@@ -101,9 +101,9 @@ export default {
     };
     const validatePassCheck = (rule, value, callback) => {
       if (value === '') {
-        callback(new Error('Please enter your password again'));
+        callback(new Error('确认密码不能为空'));
       } else if (value !== this.formCustom.passwd) {
-        callback(new Error('The two input passwords do not match!'));
+        callback(new Error('两次密码不匹配'));
       } else {
         callback();
       }
@@ -116,6 +116,7 @@ export default {
       },
       uploadList: [],
       imgName: '',
+      bucketName: '',
       visible: false,
       formValidate: {
         id: '',
@@ -165,7 +166,7 @@ export default {
           { validator: validatePassCheck, trigger: 'blur' }
         ],
         oldpasswd: [
-          { required: true, message: '旧密码不能为空', trigger: 'blur' }
+          { required: true, message: '当前密码不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -183,6 +184,7 @@ export default {
             })
           } else if (name === 'formPasswd') {
             let data = {}
+            data.oldPasswd = encrypt(this.formPasswd.oldpasswd)
             data.passwd = encrypt(this.formPasswd.passwd)
             updatePasswd(data).then(res => {
               this.$Message.success(res.data.msg)
@@ -196,7 +198,8 @@ export default {
     handleReset (name) {
       this.$refs[name].resetFields();
     },
-    handleView (name) {
+    handleView (bucketName, name) {
+      this.bucketName = bucketName
       this.imgName = name
       this.visible = true
     },
@@ -241,9 +244,16 @@ export default {
     this.formValidate.phone = this.$store.state.userInfo.phone
     this.formValidate.content = this.$store.state.userInfo.content
 
-    let avatar = {}
-    avatar.url = this.formValidate.avatar
-    this.uploadList.put(avatar)
+    if(this.formValidate.avatar) {
+      let avatarObj = Object.assign({}, this.formValidate.avatar)
+      let avatarArr = avatarObj.split('/')
+      let avatar = {}
+      avatar.bucketName = avatarArr[1]
+      avatar.name = avatarArr[avatarArr.length -1]
+      avatar.url = this.formValidate.avatar
+      this.uploadList.put(avatar)
+    }
+    
   }
 }
 </script>
