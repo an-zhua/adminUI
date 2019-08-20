@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
 // cookie保存的天数
 import config from '@/config'
+import CryptoJS from 'crypto-js'
 import { forEach, hasOneOf, objEqual } from '@/libs/tools'
 
 const { title, cookieExpires, useI18n, menu } = config
@@ -524,4 +525,17 @@ export const deepClone = data => {
     }
   }
   return obj
+}
+
+/**
+ * AES加密 ：字符串 返回base64 
+ */
+export function encrypt (word) {
+  let key = CryptoJS.enc.Utf8.parse(config.secretKey)
+  let srcs = CryptoJS.enc.Utf8.parse(word)
+  let encrypted = CryptoJS.AES.encrypt(srcs, key, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7
+  })
+  return encrypted.toString()
 }

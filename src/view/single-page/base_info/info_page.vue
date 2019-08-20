@@ -84,8 +84,7 @@
 <script>
 import { updateUser, updatePasswd } from '@/api/user'
 import { mapGetters } from 'vuex'
-import config from '@/config'
-import CryptoJS from 'crypto-js' //加密js
+import { encrypt } from '@/libs/util'
 export default {
   name: 'info_page',
   data () {
@@ -184,7 +183,7 @@ export default {
             })
           } else if (name === 'formPasswd') {
             let data = {}
-            data.passwd = CryptoJS.AES.encrypt(this.formValidate.passwd, config.secretKey)
+            data.passwd = encrypt(this.formPasswd.passwd)
             updatePasswd(data).then(res => {
               this.$Message.success(res.data.msg)
             }).catch(err => {

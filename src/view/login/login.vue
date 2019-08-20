@@ -17,8 +17,7 @@
 <script>
 import LoginForm from '_c/login-form'
 import { mapActions } from 'vuex'
-import config from '@/config'
-import CryptoJS from 'crypto-js' //加密js
+import { encrypt } from '@/libs/util'
 export default {
   components: {
     LoginForm
@@ -30,7 +29,7 @@ export default {
     ]),
     handleSubmit ({ username, password }) {
       this.$Loading.start();
-      password = CryptoJS.AES.encrypt(password, config.secretKey)
+      password = encrypt(password)
       this.handleLogin({ username, password }).then(res => {
         this.getUserInfo().then(res => {
           this.$router.push({
