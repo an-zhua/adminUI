@@ -534,8 +534,9 @@ export function encrypt (word) {
   let key = CryptoJS.enc.Utf8.parse(config.secretKey)
   let srcs = CryptoJS.enc.Utf8.parse(word)
   let encrypted = CryptoJS.AES.encrypt(srcs, key, {
-    mode: CryptoJS.mode.ECB,
-    padding: CryptoJS.pad.Pkcs7
+    iv: key,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.ZeroPadding
   })
-  return encrypted.toString()
+  return CryptoJS.enc.Base64.stringify(encrypted.ciphertext)
 }
