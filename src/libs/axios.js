@@ -19,7 +19,7 @@ const addErrorLog = errorInfo => {
 
 // 返回其他状态吗
 axios.defaults.validateStatus = function (status) {
-  return status >= 200 && status <= 500 // 默认的
+  return status >= 200 && status <= 507 // 默认的
 }
 
 // 跨域请求，允许保存cookie

@@ -23,8 +23,9 @@
             </div>
             <Upload
                 ref="upload"
+                name="object"
                 :show-upload-list="false"
-                :default-file-list="uploadList"
+                :default-file-list="defaultList"
                 :on-success="handleSuccess"
                 :format="['jpg','jpeg','png']"
                 :max-size="500"
@@ -32,7 +33,7 @@
                 :on-exceeded-size="handleMaxSize"
                 :before-upload="handleBeforeUpload"
                 type="drag"
-                action="//user/minio/object/user"
+                action="/user/minio/object/user"
                 style="display: inline-block;width:58px;">
                 <div style="width: 58px;height:58px;line-height: 58px;">
                     <Icon type="ios-camera" size="20"></Icon>
@@ -92,9 +93,9 @@ export default {
       if (value === '') {
         callback(new Error('新密码不能为空'));
       } else {
-        if (this.formCustom.passwdCheck !== '') {
+        if (this.formPasswd.passwdCheck !== '') {
           // 对第二个密码框单独验证
-          this.$refs.formCustom.validateField('passwdCheck');
+          this.$refs.formPasswd.validateField('passwdCheck');
         }
         callback();
       }
@@ -102,7 +103,7 @@ export default {
     const validatePassCheck = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('确认密码不能为空'));
-      } else if (value !== this.formCustom.passwd) {
+      } else if (value !== this.formPasswd.passwd) {
         callback(new Error('两次密码不匹配'));
       } else {
         callback();
@@ -114,6 +115,7 @@ export default {
         passwdCheck: '',
         oldpasswd: ''
       },
+      defaultList: [],
       uploadList: [],
       imgName: '',
       bucketName: '',
@@ -150,20 +152,15 @@ export default {
           }
         ],
         email: [
-          {
-            required: true,
-            message: '邮箱不能为空',
-            trigger: 'blur'
-          },
           { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
         ]
       },
       rulePasswd: {
         passwd: [
-          { validator: validatePass, trigger: 'blur' }
+          { required: true, validator: validatePass, trigger: 'blur' }
         ],
         passwdCheck: [
-          { validator: validatePassCheck, trigger: 'blur' }
+          { required: true, validator: validatePassCheck, trigger: 'blur' }
         ],
         oldpasswd: [
           { required: true, message: '当前密码不能为空', trigger: 'blur' }
@@ -179,8 +176,6 @@ export default {
             let data = this.formValidate
             updateUser(data).then(res => {
               this.$Message.success(res.data.msg)
-            }).catch(err => {
-              this.$Message.success('提交失败,请重试')
             })
           } else if (name === 'formPasswd') {
             let data = {}
@@ -188,8 +183,6 @@ export default {
             data.passwd = encrypt(this.formPasswd.passwd)
             updatePasswd(data).then(res => {
               this.$Message.success(res.data.msg)
-            }).catch(err => {
-              this.$Message.success('提交失败,请重试')
             })
           }
         }
@@ -209,8 +202,10 @@ export default {
       this.formValidate.avatar = null
     },
     handleSuccess (res, file) {
-      file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar'
-      file.name = '7eb99afb9d5f317c912f08b5212fd69a'
+      console.log(res)
+      console.log(file)
+      // file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar'
+      // file.name = '7eb99afb9d5f317c912f08b5212fd69a'
       this.formValidate.avatar = file.url
     },
     handleFormatError (file) {
@@ -235,14 +230,17 @@ export default {
         return check;
     }
   },
+  mounted () {
+      this.uploadList = this.$refs.upload.fileList;
+  },
   created () {
-    this.formValidate.id = this.$store.state.userInfo.id
-    this.formValidate.nickName = this.$store.state.userInfo.nickName
-    this.formValidate.userName = this.$store.state.userInfo.userName
-    this.formValidate.avatar = this.$store.state.userInfo.avatar
-    this.formValidate.email = this.$store.state.userInfo.email
-    this.formValidate.phone = this.$store.state.userInfo.phone
-    this.formValidate.content = this.$store.state.userInfo.content
+    this.formValidate.id = this.$store.state.user.userInfo.id
+    this.formValidate.nickName = this.$store.state.user.userInfo.nickName
+    this.formValidate.userName = this.$store.state.user.userInfo.userName
+    this.formValidate.avatar = this.$store.state.user.userInfo.avatar
+    this.formValidate.email = this.$store.state.user.userInfo.email
+    this.formValidate.phone = this.$store.state.user.userInfo.phone
+    this.formValidate.content = this.$store.state.user.userInfo.content
 
     if(this.formValidate.avatar) {
       let avatarObj = Object.assign({}, this.formValidate.avatar)
@@ -251,7 +249,7 @@ export default {
       avatar.bucketName = avatarArr[1]
       avatar.name = avatarArr[avatarArr.length -1]
       avatar.url = this.formValidate.avatar
-      this.uploadList.put(avatar)
+      this.defaultList.put(avatar)
     }
     
   }
