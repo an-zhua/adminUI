@@ -13,7 +13,7 @@
               <template v-if="item.status === 'finished'">
                   <img :src="item.url">
                   <div class="upload-list-cover">
-                      <Icon type="ios-eye-outline" @click.native="handleView(item.bucketName, item.name)"></Icon>
+                      <Icon type="ios-eye-outline" @click.native="handleView(item.url)"></Icon>
                       <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
                   </div>
               </template>
@@ -40,7 +40,7 @@
                 </div>
             </Upload>
             <Modal title="View Image" v-model="visible">
-                <img :src="'/user/minio/download/' + bucketName + '/' + imgName + ''" v-if="visible" style="width: 100%">
+                <img :src="avatarUrl" v-if="visible" style="width: 100%">
             </Modal>
           </FormItem>
           <FormItem label="手机号" prop="phone">
@@ -118,7 +118,7 @@ export default {
       defaultList: [],
       uploadList: [],
       imgName: '',
-      bucketName: '',
+      avatarUrl: '',
       visible: false,
       formValidate: {
         id: '',
@@ -191,9 +191,8 @@ export default {
     handleReset (name) {
       this.$refs[name].resetFields();
     },
-    handleView (bucketName, name) {
-      this.bucketName = bucketName
-      this.imgName = name
+    handleView (avatarUrl) {
+      this.avatarUrl = avatarUrl
       this.visible = true
     },
     handleRemove (file) {
@@ -202,10 +201,8 @@ export default {
       this.formValidate.avatar = null
     },
     handleSuccess (res, file) {
-      console.log(res)
-      console.log(file)
-      // file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar'
-      // file.name = '7eb99afb9d5f317c912f08b5212fd69a'
+      file.url = '/user/minio/download/' + res.bucketName + '/' + file.name
+      file.bucketName = res.bucketName
       this.formValidate.avatar = file.url
     },
     handleFormatError (file) {
@@ -243,15 +240,13 @@ export default {
     this.formValidate.content = this.$store.state.user.userInfo.content
 
     if(this.formValidate.avatar) {
-      let avatarObj = Object.assign({}, this.formValidate.avatar)
-      let avatarArr = avatarObj.split('/')
+      let avatarArr = this.formValidate.avatar.split('/')
       let avatar = {}
-      avatar.bucketName = avatarArr[1]
-      avatar.name = avatarArr[avatarArr.length -1]
+      avatar.bucketName = avatarArr[4]
+      // avatar.name = avatarArr[avatarArr.length -1]
       avatar.url = this.formValidate.avatar
-      this.defaultList.put(avatar)
+      this.defaultList[0] = avatar
     }
-    
   }
 }
 </script>
