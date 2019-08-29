@@ -2,7 +2,7 @@
   <div class="login-container pull-height"
        @keyup.enter.native="handleLogin">
     <div class="login-logo animated fadeIn">
-      <img src="/svg/logo.svg"
+      <img src="../../assets/images/logo.svg"
            alt="">
     </div>
     <div class="login-weaper">
@@ -105,7 +105,7 @@ export default {
   top: 0;
   width: 100%;
   height: 100%;
-  background-image: url("/img/login.png");
+  background-image: url("../../assets/images/login.png");
   background-size: cover;
 }
 .login-left {
