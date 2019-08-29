@@ -1,4 +1,5 @@
 const path = require('path')
+// const req_url = 'http://47.101.181.228:5001'
 const req_url = 'http://localhost:5001'
 const resolve = dir => {
   return path.join(__dirname, dir)
