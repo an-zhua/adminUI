@@ -1,11 +1,12 @@
 import axios from '@/libs/api.request'
 const scope = 'server'
 
-export const login = ({ username, password }) => {
+export const login = ({ username, password, code }) => {
   const grant_type = 'password'
   const data = {
     username,
     password,
+    code,
     grant_type,
     scope
   }

@@ -1,6 +1,6 @@
 const path = require('path')
-const req_url = 'http://47.101.181.228:5001'
-// const req_url = 'http://localhost:5001'
+// const req_url = 'http://47.101.181.228:5001'
+const req_url = 'http://localhost:5001'
 const resolve = dir => {
   return path.join(__dirname, dir)
 }
@@ -13,7 +13,7 @@ const resolve = dir => {
 // 例如：https://www.foobar.com/my-app/
 // 需要将它改为'/my-app/'
 const BASE_URL = process.env.NODE_ENV === 'production'
-  ? '/maple'
+  ? '/'
   : '/'
 
 module.exports = {

@@ -71,15 +71,6 @@ import { mapActions } from "vuex"
 export default {
   name: "userlogin",
   data() {
-    const validateCode = (rule, value, callback) => {
-      if (this.code.value != value) {
-        this.loginForm.code = "";
-        this.refreshCode();
-        callback(new Error("请输入正确的验证码"));
-      } else {
-        callback();
-      }
-    };
     return {
       loginForm: {
         username: "maple",
@@ -88,10 +79,10 @@ export default {
         redomStr: ""
       },
       code: {
-        src: "",
+        src: "/auth/code",
         value: "",
         len: 4,
-        type: "text"
+        type: "image"
       },
       loginRules: {
         username: [
@@ -103,8 +94,7 @@ export default {
         ],
         code: [
           { required: true, message: "请输入验证码", trigger: "blur" },
-          { min: 4, max: 4, message: "验证码长度为4位", trigger: "blur" },
-          { required: true, trigger: "blur", validator: validateCode }
+          { min: 4, max: 4, message: "验证码长度为4位", trigger: "blur" }
         ]
       },
       passwordType: "password"
@@ -126,7 +116,7 @@ export default {
       this.loginForm.redomStr = randomLenNum(this.code.len, true);
       this.code.type == "text"
         ? (this.code.value = randomLenNum(this.code.len))
-        : (this.code.src = `${this.codeUrl}/${this.loginForm.redomStr}`);
+        : (this.code.src = `/auth/code?randomStr=${this.loginForm.redomStr}`);
       this.loginForm.code = this.code.value;
     },
     handleSubmit() {
@@ -135,7 +125,6 @@ export default {
             this.$Loading.start();
             let data = Object.assign({}, this.loginForm)
             data.password = encrypt(data.password)
-            console.log(data)
             this.handleLogin(data).then(res => {
                 this.getUserInfo().then(res => {
                     this.$router.push({
