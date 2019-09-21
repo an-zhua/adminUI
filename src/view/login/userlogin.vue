@@ -76,7 +76,7 @@ export default {
         username: "maple",
         password: "123456",
         code: "",
-        redomStr: ""
+        randomStr: ""
       },
       code: {
         src: "/auth/code",
@@ -113,10 +113,10 @@ export default {
       'getUserInfo'
     ]),
     refreshCode() {
-      this.loginForm.redomStr = randomLenNum(this.code.len, true);
+      this.loginForm.randomStr = randomLenNum(this.code.len, true);
       this.code.type == "text"
         ? (this.code.value = randomLenNum(this.code.len))
-        : (this.code.src = `/auth/code?randomStr=${this.loginForm.redomStr}`);
+        : (this.code.src = `/auth/code?randomStr=${this.loginForm.randomStr}`);
       this.loginForm.code = this.code.value;
     },
     handleSubmit() {

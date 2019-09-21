@@ -1,14 +1,15 @@
 import axios from '@/libs/api.request'
 const scope = 'server'
 
-export const login = ({ username, password, code }) => {
+export const login = ({ username, password, code, randomStr }) => {
   const grant_type = 'password'
   const data = {
     username,
     password,
     code,
     grant_type,
-    scope
+    scope,
+    randomStr
   }
   return axios.request({
     url: '/auth/oauth/token',
