@@ -2,14 +2,14 @@ import axios from '@/libs/api.request'
 
 export const getDeptList = () => {
   return axios.request({
-    url: '/user/sysDept/getDeptList',
+    url: 'user/sysDept/getDeptList',
     method: 'get'
   })
 }
 
 export const getDeptTableData = param => {
   return axios.request({
-    url: '/user/sysDept/page',
+    url: 'user/sysDept/page',
     params: param,
     method: 'get'
   })
@@ -17,7 +17,7 @@ export const getDeptTableData = param => {
 
 export const getRoleTableData = param => {
   return axios.request({
-    url: '/user/baseRole/page',
+    url: 'user/baseRole/page',
     params: param,
     method: 'get'
   })
@@ -25,14 +25,14 @@ export const getRoleTableData = param => {
 
 export const getRoleList = () => {
   return axios.request({
-    url: '/user/baseRole/getRoleList',
+    url: 'user/baseRole/getRoleList',
     method: 'get'
   })
 }
 
 export const addRole = param => {
   return axios.request({
-    url: '/user/baseRole/add',
+    url: 'user/baseRole/add',
     params: param,
     method: 'post'
   })
@@ -40,7 +40,7 @@ export const addRole = param => {
 
 export const updateRole = param => {
   return axios.request({
-    url: '/user/baseRole/update',
+    url: 'user/baseRole/update',
     params: param,
     method: 'post'
   })
@@ -48,7 +48,7 @@ export const updateRole = param => {
 
 export const deleteRole = param => {
   return axios.request({
-    url: '/user/baseRole/delete',
+    url: 'user/baseRole/delete',
     params: param,
     method: 'delete'
   })
@@ -56,7 +56,7 @@ export const deleteRole = param => {
 
 export const updateRoleAuth = param => {
   return axios.request({
-    url: '/user/baseRole/updateRoleAuth',
+    url: 'user/baseRole/updateRoleAuth',
     params: param,
     method: 'post'
   })
@@ -64,7 +64,7 @@ export const updateRoleAuth = param => {
 
 export const getMenuTree = param => {
   return axios.request({
-    url: '/user/baseResources/getMenuTree',
+    url: 'user/baseResources/getMenuTree',
     params: param,
     method: 'get'
   })
@@ -72,7 +72,7 @@ export const getMenuTree = param => {
 
 export const getAuthTree = param => {
   return axios.request({
-    url: '/user/baseResources/getAuthTree',
+    url: 'user/baseResources/getAuthTree',
     params: param,
     method: 'get'
   })
@@ -80,7 +80,7 @@ export const getAuthTree = param => {
 
 export const addMenu = param => {
   return axios.request({
-    url: '/user/baseResources/addMenu',
+    url: 'user/baseResources/addMenu',
     params: param,
     method: 'post'
   })
@@ -88,7 +88,7 @@ export const addMenu = param => {
 
 export const updateMenu = param => {
   return axios.request({
-    url: '/user/baseResources/updateMenu',
+    url: 'user/baseResources/updateMenu',
     params: param,
     method: 'post'
   })
@@ -96,7 +96,7 @@ export const updateMenu = param => {
 
 export const deleteMenu = id => {
   return axios.request({
-    url: '/user/baseResources/delete/' + id,
+    url: 'user/baseResources/delete/' + id,
     method: 'delete'
   })
 }

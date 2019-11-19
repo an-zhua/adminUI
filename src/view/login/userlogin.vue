@@ -79,7 +79,7 @@ export default {
         randomStr: ""
       },
       code: {
-        src: "/auth/code",
+        src: "auth/code",
         value: "",
         len: 4,
         type: "image"
@@ -116,7 +116,7 @@ export default {
       this.loginForm.randomStr = randomLenNum(this.code.len, true);
       this.code.type == "text"
         ? (this.code.value = randomLenNum(this.code.len))
-        : (this.code.src = `/auth/code?randomStr=${this.loginForm.randomStr}`);
+        : (this.code.src = `auth/code?randomStr=${this.loginForm.randomStr}`);
       this.loginForm.code = this.code.value;
     },
     handleSubmit() {

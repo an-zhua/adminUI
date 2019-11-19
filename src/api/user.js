@@ -2,14 +2,14 @@ import axios from '@/libs/api.request'
 
 export const getUserInfo = () => {
   return axios.request({
-    url: '/user/baseUser/info',
+    url: 'user/baseUser/info',
     method: 'get'
   })
 }
 
 export const getUserTableData = param => {
   return axios.request({
-    url: '/user/baseUser/page',
+    url: 'user/baseUser/page',
     params: param,
     method: 'get'
   })
@@ -17,7 +17,7 @@ export const getUserTableData = param => {
 
 export const addUser = param => {
   return axios.request({
-    url: '/user/baseUser/add',
+    url: 'user/baseUser/add',
     params: param,
     method: 'post'
   })
@@ -25,7 +25,7 @@ export const addUser = param => {
 
 export const updateUser = param => {
   return axios.request({
-    url: '/user/baseUser/update',
+    url: 'user/baseUser/update',
     params: param,
     method: 'post'
   })
@@ -33,7 +33,7 @@ export const updateUser = param => {
 
 export const deleteUser = param => {
   return axios.request({
-    url: '/user/baseUser/delete',
+    url: 'user/baseUser/delete',
     params: param,
     method: 'delete'
   })
@@ -41,7 +41,7 @@ export const deleteUser = param => {
 
 export const updatePasswd = param => {
   return axios.request({
-    url: '/user/baseUser/updatePasswd',
+    url: 'user/baseUser/updatePasswd',
     params: param,
     method: 'post'
   })

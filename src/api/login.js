@@ -12,7 +12,7 @@ export const login = ({ username, password, code, randomStr }) => {
     randomStr
   }
   return axios.request({
-    url: '/auth/oauth/token',
+    url: 'auth/oauth/token',
     headers: {
       isToken: false,
       'Authorization': 'Basic bWFwbGU6bWFwbGU='
@@ -24,7 +24,7 @@ export const login = ({ username, password, code, randomStr }) => {
 
 export const logout = () => {
   return axios.request({
-    url: '/auth/token/logout',
+    url: 'auth/token/logout',
     method: 'get'
   })
 }

@@ -12,7 +12,7 @@ export const getRouterReq = (access) => {
 
 export const getUserMenu = (access) => {
   return axios.request({
-    url: '/user/baseResources/getUserMenu',
+    url: 'user/baseResources/getUserMenu',
     method: 'get'
   })
 }
